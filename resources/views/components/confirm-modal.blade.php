@@ -6,6 +6,7 @@
 
     <!-- Backdrop -->
     <div
+        x-cloak
         x-show="open"
         x-transition.opacity
         class="fixed inset-0 bg-black/60 z-40"
@@ -14,9 +15,10 @@
 
     <!-- Modal -->
     <div
+        x-cloak
         x-show="open"
         x-transition
-        @keydown.escape.window="open = false" 
+        @keydown.escape.window="open = false"
         class="fixed inset-0 z-50 flex items-center justify-center px-4"
     >
         <div

@@ -18,6 +18,7 @@
         "vite": "^7.0.4"
     },
     "dependencies": {
+        "alpinejs": "^3.15.3",
         "latest": "^0.2.0",
         "n": "^10.2.0",
         "stable": "^0.1.8"

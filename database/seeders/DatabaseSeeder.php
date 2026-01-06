@@ -7,16 +7,19 @@ use App\Models\Comment;
 use App\Models\Movie;
 use App\Models\Review;
 use App\Models\UserRelationship;
+use App\Models\WantToWatch;
+use App\Models\Seen;
+use Maize\Markable\Models\Favorite;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Suggestion;
 use Faker\Factory as FakerFactory;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
+    // php artisan test --testsuite=Feature
+
     public function run(): void
     {
         $faker = FakerFactory::create();
@@ -49,40 +52,40 @@ class DatabaseSeeder extends Seeder
         $users = User::all();
         $movies = Movie::all();
 
-        foreach ($users as $user) {
-            $reviewCount = min($movies->count(), $faker->numberBetween(2, 4));
-            $pickedMovies = $movies->shuffle()->take($reviewCount);
+        // foreach ($users as $user) {
+        //     $reviewCount = min($movies->count(), $faker->numberBetween(2, 4));
+        //     $pickedMovies = $movies->shuffle()->take($reviewCount);
 
-            foreach ($pickedMovies as $movie) {
-                Review::firstOrCreate(
-                    [
-                        'user_id' => $user->id,
-                        'movie_id' => $movie->id,
-                    ],
-                    [
-                        'title' => $faker->sentence(4),
-                        'description' => $faker->paragraph(3),
-                        'rating' => $faker->numberBetween(1, 5),
-                        'spoilers' => $faker->boolean(15),
-                    ]
-                );
-            }
-        }
+        //     foreach ($pickedMovies as $movie) {
+        //         Review::firstOrCreate(
+        //             [
+        //                 'user_id' => $user->id,
+        //                 'movie_id' => $movie->id,
+        //             ],
+        //             [
+        //                 'title' => $faker->sentence(4),
+        //                 'description' => $faker->paragraph(3),
+        //                 'rating' => $faker->numberBetween(1, 5),
+        //                 'spoilers' => $faker->boolean(15),
+        //             ]
+        //         );
+        //     }
+        // }
 
-        $reviews = Review::all();
+        // $reviews = Review::all();
 
-        foreach ($reviews as $review) {
-            $commentCount = $faker->numberBetween(1, 3);
+        // foreach ($reviews as $review) {
+        //     $commentCount = $faker->numberBetween(1, 3);
 
-            for ($i = 0; $i < $commentCount; $i++) {
-                $commenter = $users->where('id', '!=', $review->user_id)->random();
-                Comment::create([
-                    'user_id' => $commenter->id,
-                    'review_id' => $review->id,
-                    'description' => $faker->sentence(12),
-                ]);
-            }
-        }
+        //     for ($i = 0; $i < $commentCount; $i++) {
+        //         $commenter = $users->where('id', '!=', $review->user_id)->random();
+        //         Comment::create([
+        //             'user_id' => $commenter->id,
+        //             'review_id' => $review->id,
+        //             'description' => $faker->sentence(12),
+        //         ]);
+        //     }
+        // }
 
         // if ($users->count() > 1) {
         //     foreach ($users as $user) {
@@ -103,33 +106,48 @@ class DatabaseSeeder extends Seeder
         // }
 
         // populate marks tables
-        if ($movies->isNotEmpty()) {
+        // if ($movies->isNotEmpty()) {
 
+        //     foreach ($users as $user) {
+        //     // favorites
+        //     $favorites = $movies->shuffle()->take(3);
+        //     foreach ($favorites as $movie) {
+        //         if (! $user->favorites()->where('markable_id', $movie->id)->exists()) {
+        //             Favorite::add($movie, $user);
+        //         }
+        //     }
+
+        //     // watchlist
+        //     $watchlist = $movies->shuffle()->take(4);
+        //     foreach ($watchlist as $movie) {
+        //         if (! $user->wantToWatch()->where('markable_id', $movie->id)->exists()) {
+        //             WantToWatch::add($movie, $user);
+        //         }
+        //     }
+
+        //     // seen
+        //     $seen = $movies->shuffle()->take(5);
+        //     foreach ($seen as $movie) {
+        //         if (! $user->seenMovies()->where('markable_id', $movie->id)->exists()) {
+        //             Seen::add($movie, $user);
+        //                 }
+        //             }
+        //         }
+        // }
+
+        if ($users->isNotEmpty()) {
             foreach ($users as $user) {
-            // favorites
-            $favorites = $movies->shuffle()->take(3);
-            foreach ($favorites as $movie) {
-                if (! $user->favorites()->where('markable_id', $movie->id)->exists()) {
-                    Favorite::add($movie, $user);
+                $count = $faker->numberBetween(1, 2);
+
+                for ($i = 0; $i < $count; $i++) {
+                    Suggestion::create([
+                        'user_id' => $user->id,
+                        'title' => $faker->sentence(3),
+                        'accepted' => $faker->randomElement([true, false, null]),
+                    ]);
                 }
             }
-
-            // watchlist
-            $watchlist = $movies->shuffle()->take(4);
-            foreach ($watchlist as $movie) {
-                if (! $user->wantToWatch()->where('markable_id', $movie->id)->exists()) {
-                    WantToWatch::add($movie, $user);
-                }
-            }
-
-            // seen
-            $seen = $movies->shuffle()->take(5);
-            foreach ($seen as $movie) {
-                if (! $user->seenMovies()->where('markable_id', $movie->id)->exists()) {
-                    Seen::add($movie, $user);
-                        }
-                    }
-                }
         }
+
     }
 }

@@ -121,25 +121,29 @@
 
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                             @foreach($watchList as $movie)
+                            <a href="{{ route('movies.show', $movie->movie) }}" class="group">
                                 <div class="group relative">
                                 <div class="aspect-[2/3] bg-gray-700 rounded-lg overflow-hidden relative">
-                            <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                                 src="https://image.tmdb.org/t/p/w500/{{ $movie->movie->poster_url }}"  
-                                 alt="Movie poster" />
+                                <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                                    src="https://image.tmdb.org/t/p/w500/{{ $movie->movie->poster_url }}"  
+                                    alt="Movie poster" />
                             
-                            <!-- Watched Badge -->
-                            <div class="absolute top-2 right-2 bg-green-600 rounded-full p-1">
-                                @svg('heroicon-s-check', 'w-3 h-3 text-white')
+                                <!-- Watched Badge -->
+                                <div class="absolute top-2 right-2 bg-green-600 rounded-full p-1">
+                                    @svg('heroicon-s-check', 'w-3 h-3 text-white')
+                                </div>
+                            
                             </div>
-                        </div>
+                            
+                            <h3 class="mt-2 text-sm font-medium text-white line-clamp-2">
+                                {{ $movie->movie->name }}
+                            </h3>
+                            <p class="text-xs text-gray-400">Added {{$movie->created_at->diffForHumans()}}</p>
                         
-                        <h3 class="mt-2 text-sm font-medium text-white line-clamp-2">
-                            {{ $movie->movie->name }}
-                        </h3>
-                        <p class="text-xs text-gray-400">Added {{$movie->created_at->diffForHumans()}}</p>
-                        
-                        </div>
+                            </div>
                             @endforeach
+
+                        </a>
                         </div>
                     </div>
 

@@ -30,7 +30,7 @@
           <input type="search" id="search" name="search"
             class="block w-full pl-12 pr-24 py-3 text-sm text-white placeholder-gray-400 bg-gray-800/50 border border-gray-700
              rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-            placeholder="Search movies, directord, actors..." 
+            placeholder="Search movies, directors, actors" 
             autocomplete="off"
           />
           
@@ -47,12 +47,12 @@
     <div class="flex items-center gap-3">
       
       <!-- Mobile Search Button -->
-      <button onclick="document.getElementById('mobile-search').classList.toggle('hidden')" 
+      <!-- <button onclick="document.getElementById('mobile-search').classList.toggle('hidden')" 
         class="md:hidden p-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
         type="button" aria-label="Toggle search"
       >
         @svg('heroicon-o-magnifying-glass', 'w-5 h-5')
-      </button>
+      </button> -->
 
       <!-- Sign In Button (Desktop) / User Profile -->
       @guest
@@ -75,7 +75,7 @@
                 alt="{{ auth()->user()->name}}"
                 class="w-full h-full object-cover">
           @else 
-            <img src="{{ asset('images/person-placeholder.png') }}" 
+            <img src="" 
                 alt="placeholder img"
                 class="w-full h-full object-cover">
           @endif
