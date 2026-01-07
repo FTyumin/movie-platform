@@ -55,15 +55,14 @@
                 {{-- Privacy --}}
                 <div class="flex items-center justify-between rounded-xl bg-gray-800/40 border border-gray-700 px-4 py-3">
                     <div>
-                        <p class="text-sm font-medium text-white">Public list</p>
+                        <p class="text-sm font-medium text-white">Private list</p>
                         <p class="text-xs text-gray-400">
-                            Public lists are visible to other users
+                            Private lists are visible to other users
                         </p>
                     </div>
 
                     <input type="hidden" name="is_private" value="0">
-                    <input type="checkbox" id="is_private" name="is_private"
-                        value="1"
+                    <input type="checkbox" id="is_private" name="is_private" value="1"
                         class="w-5 h-5 rounded border-gray-600 bg-gray-700
                                text-yellow-400 focus:ring-yellow-400"
                     >

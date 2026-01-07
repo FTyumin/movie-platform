@@ -30,14 +30,12 @@
                     <input type="" id="movie_id" name="movie_id"  
                         class="w-full px-4 py-3 rounded-lg bg-black  border border-gray-600 
                                focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
-                        placeholder="e.g. 100"
-                        required
+                        placeholder="e.g. 100" required
                     >
                 </div>
 
                 <!-- Submit -->
-                <button
-                    type="submit"
+                <button type="submit"
                     class="w-full bg-yellow-400 text-black font-semibold py-3 rounded-lg
                            hover:bg-yellow-300 transition transform hover:scale-[1.02]">
                    Add Movie

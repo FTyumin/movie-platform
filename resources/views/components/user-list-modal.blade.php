@@ -10,6 +10,7 @@
     </span>
 
     <div
+        x-cloak
         x-show="open"
         x-transition.opacity
         class="fixed inset-0 bg-black/60 z-40"
@@ -17,6 +18,7 @@
     ></div>
 
     <div
+        x-cloak
         x-show="open"
         x-transition
         @keydown.escape.window="open = false"
@@ -28,12 +30,9 @@
         >
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-white">{{ $title }}</h3>
-                <button
-                    type="button"
+                <button type="button"
                     @click="open = false"
-                    class="text-gray-400 hover:text-white transition"
-                    aria-label="Close"
-                >
+                    class="text-gray-400 hover:text-white transition" aria-label="Close">
                     ✕
                 </button>
             </div>

@@ -47,12 +47,12 @@
     <div class="flex items-center gap-3">
       
       <!-- Mobile Search Button -->
-      <!-- <button onclick="document.getElementById('mobile-search').classList.toggle('hidden')" 
+      <button onclick="document.getElementById('mobile-search').classList.toggle('hidden')" 
         class="md:hidden p-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
         type="button" aria-label="Toggle search"
       >
         @svg('heroicon-o-magnifying-glass', 'w-5 h-5')
-      </button> -->
+      </button>
 
       <!-- Sign In Button (Desktop) / User Profile -->
       @guest
@@ -75,7 +75,7 @@
                 alt="{{ auth()->user()->name}}"
                 class="w-full h-full object-cover">
           @else 
-            <img src="" 
+            <img src="{{ asset('images/person-placeholder.png') }}"
                 alt="placeholder img"
                 class="w-full h-full object-cover">
           @endif
