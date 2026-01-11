@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Cache;
 use Maize\Markable\Models\Favorite;
 use App\Models\Movie;
 use App\Models\Seen;
-use App\Models\Person;
+use App\Models\User;
 use App\Models\WantToWatch;
 use Illuminate\Support\Facades\Auth;
 
@@ -74,5 +74,29 @@ class MarkController extends Controller
         session()->flash('success', $exists ? 'Person marked as favorite!' : 'Person removed from favorites.');
         
         return redirect()->back();
+    }
+
+    public function listFavorites(User $user) {
+        $movies = $user->favorites;
+        $type = 'favorites';
+        $userName = $user->name;
+
+        return view('movies.list', compact('movies', 'type', 'userName'));
+    }
+
+    public function listSeen(User $user) {
+        $movies = $user->seenMovies;
+        $type = 'seen movies';
+        $userName = $user->name;
+
+        return view('movies.list', compact('movies', 'type', 'userName'));
+    }
+
+    public function listWatchlist(User $user) {
+        $movies = $user->wantToWatch;
+        $type = 'watchlist';
+        $userName = $user->name;
+
+        return view('movies.list', compact('movies', 'type', 'userName'));
     }
 }

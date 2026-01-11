@@ -232,6 +232,7 @@ class ContentBasedRecommender
                 $movieData['similarity'] *= 1.2;
             }
         } 
+        
         if(!$userHasData) {
             return $this->getRecommendationsForNewUser($user, $limit);
         }

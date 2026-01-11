@@ -116,6 +116,10 @@
                                 @svg('heroicon-o-bookmark', 'w-6 h-6 text-blue-400')
                                 My Watchlist
                             </h2>
+
+                            <a href="{{ route('profile.watchlist', $user) }}" class="text-green-400 hover:text-green-300 text-sm font-medium transition-colors">
+                                View All →
+                            </a>
                             
                         </div>
 
@@ -153,11 +157,16 @@
                                 @svg('heroicon-o-heart', 'w-6 h-6 text-red-400')
                                 Favorites
                             </h2>
+                            <a href="{{ route('profile.favorites', $user) }}" class="text-green-400 hover:text-green-300 text-sm font-medium transition-colors">
+                                View All →
+                            </a>
                         </div>
 
                         @if($favorites->isEmpty())
                             <p class="text-sm text-gray-400">No favorites yet.</p>
                         @else
+                            
+                            
                             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                                 @foreach($favorites as $movie)
                                     <a href="{{ route('movies.show', $movie->movie) }}" class="group">
@@ -172,6 +181,7 @@
                                     </a>
                                 @endforeach
                             </div>
+                            
                         @endif
                     </div>
 
@@ -227,7 +237,7 @@
                                             <!-- Star Rating -->
                                             <div class="flex items-center gap-1 mb-2">
                                                 @for ($j = 0; $j < $review->rating; $j++)
-                                                @svg('heroicon-s-star', 'w-4 h-4 text-yellow-400')
+                                                    @svg('heroicon-s-star', 'w-4 h-4 text-yellow-400')
                                                 @endfor
 
                                                 @for($j = $review->rating; $j < 5; $j++)
@@ -235,9 +245,6 @@
                                                 @endfor
                                                 <span class="text-sm text-gray-400 ml-1">{{ $review->rating }}</span>
                                             </div>
-                                            
-                                            <p class="text-sm text-gray-300 line-clamp-2">
-                                            </p>
                                             
                                             <time class="text-sm text-gray-400">{{ $review->created_at->diffForHumans() }}</time>
                                         </div>
@@ -346,6 +353,10 @@
                         Recently Watched
                     </h2>
 
+                    <a href="{{ route('profile.seen', $user) }}" class="text-green-400 hover:text-green-300 text-sm font-medium transition-colors">
+                        View All →
+                    </a>
+                    
                 </div>
 
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
@@ -376,6 +387,7 @@
                 </div>
             </div>
         </div>
+        
     </main>
 </div>
 </section>

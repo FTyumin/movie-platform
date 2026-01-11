@@ -39,6 +39,9 @@ Route::get('genres/{genre}', [GenreController::class, 'show'])->name('genres.sho
 // profile functions
 Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
 Route::get('profile/{user}/reviews', [ReviewController::class, 'showUserReviews'])->name('profile.reviews');
+Route::get('/profile/{user}/favorites', [MarkController::class, 'listFavorites'])->name('profile.favorites');
+Route::get('/profile/{user}/seen', [MarkController::class, 'listSeen'])->name('profile.seen');
+Route::get('/profile/{user}/watchlist', [MarkController::class, 'listWatchlist'])->name('profile.watchlist');
 
 Route::get('users/{userId}/followers', [UserRelationshipController::class, 'followers']);
 Route::get('users/{userId}/followees', [UserRelationshipController::class, 'followees']);
