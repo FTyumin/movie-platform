@@ -127,7 +127,6 @@
                             <span class="text-xs {{ $isSeen ? 'text-green-500' : 'text-gray-400' }} group-hover:text-white transition-colors">Mark as Seen</span>
                         </button>
                     </form>
-
                     <form action="{{ route('favorite.toggle', $movie->id) }}" method="POST">
                         @csrf
                         <button type="submit" 

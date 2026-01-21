@@ -107,6 +107,7 @@ class MovieController extends Controller
         if (auth()->check()) {
             $userReview = $reviews->firstWhere('user_id', auth()->id());
         }
+
         return view('movies.show', compact('movie', 'similarMovies', 'reviews', 'userReview'));
     }
 
