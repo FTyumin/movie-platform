@@ -96,19 +96,24 @@ class MovieController extends Controller
     {
         $similarMovies = $this->contentRecommender->findSimilarMovies($movie->id);
         $id = $movie->id;
+
         Cache::remember("movie:{$id}:recs", 3600, function () use ($id) {
                 return $this->contentRecommender->findSimilarMovies($id, 8);
             });
+
         $reviews = $movie->reviews()
             ->with(['user', 'likedBy', 'comments'])
             ->latest()
             ->get();
+
         $userReview = null;
         if (auth()->check()) {
             $userReview = $reviews->firstWhere('user_id', auth()->id());
         }
 
-        return view('movies.show', compact('movie', 'similarMovies', 'reviews', 'userReview'));
+        $additionalActors = $this->apiClient->loadAdditionalActors($movie->id);
+
+        return view('movies.show', compact('movie', 'similarMovies', 'reviews', 'userReview', 'additionalActors'));
     }
 
     // search bar on homepage

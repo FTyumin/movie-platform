@@ -5,7 +5,7 @@
     <div class="flex items-center gap-6">
       <!-- Logo -->
       <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-        <span class="text-lg sm:text-xl font-bold text-white tracking-tight">Movie Platform</span>
+        <span class="text-lg sm:text-xl font-bold text-white tracking-tight">FilmStack</span>
       </a>
 
       <!-- Desktop Navigation -->

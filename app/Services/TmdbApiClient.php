@@ -7,7 +7,6 @@ use App\Models\Genre;
 use App\Models\Person;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Support\Arr;
 
 class TmdbApiClient {
     protected Client $http;
@@ -67,6 +66,30 @@ class TmdbApiClient {
         if (empty($path)) return null;
         
         return "https://image.tmdb.org/t/p/{$size}{$path}";
+    }
+
+    public function loadAdditionalActors(int $movieId) {
+
+        $movieInfo = $this->getMovieWithExtras($movieId);
+        $actorIdsWithRole = [];
+        // selecting 15 actors
+        $actorInfo = array_slice($movieInfo['credits']['cast'], 5, 10);
+
+  
+        $actorNames = [];
+
+        foreach ($actorInfo as $actor) {
+            $nameParts = explode(' ', $actor['name']);
+            $actorNames[] = [
+                'first_name' => array_shift($nameParts),
+                'last_name' => implode(' ', $nameParts),
+            ];
+
+        }
+
+        // dd($actorNames);
+
+        return $actorNames;
     }
 
     public function personData(int $id) {

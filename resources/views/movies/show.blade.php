@@ -82,14 +82,22 @@
                     </div>
                 @endif
 
+
                 @if(isset($movie->actors) && count($movie->actors) > 0)
                     <div class="flex gap-3">
-                        <span class="text-sm font-semibold text-gray-400 min-w-[80px]">Stars</span>
+                        <span class="text-sm font-semibold text-gray-400 min-w-[80px]">Cast</span>
                         <div class="flex flex-wrap gap-2">
                             @foreach($movie->actors->take(5) as $actor)
                                 <a href="{{ route('people.show', $actor->slug) }}" 
                                    class="text-sm text-blue-400 hover:text-blue-300 hover:underline transition-colors">
                                     {{ $actor->first_name }} {{ $actor->last_name }}<span class="text-gray-500">{{ !$loop->last ? ',' : '' }}</span>
+                                </a>
+                            @endforeach
+
+                            @foreach($additionalActors as $actor)
+                                <a href="" 
+                                   class="text-sm text-blue-400 hover:text-blue-300 hover:underline transition-colors">
+                                    {{ $actor['first_name'] }} {{ $actor['last_name'] }}<span class="text-gray-500">{{ !$loop->last ? ',' : '' }}</span>
                                 </a>
                             @endforeach
                         </div>
