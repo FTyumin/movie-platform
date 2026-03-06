@@ -62,10 +62,10 @@ class TmdbApiClient {
             return null;
         }
     }
-    
+
     public function PosterUrl(?string $path, string $size = 'w500'): ?string {
         if (empty($path)) return null;
-        
+
         return "https://image.tmdb.org/t/p/{$size}{$path}";
     }
 
@@ -74,13 +74,13 @@ class TmdbApiClient {
         $data = json_decode((string) $res->getBody(), true);
         return $data;
     }
-    
+
     public function getTopMovies(int $limit = 50, array $opts = []): array {
         $method = $opts['method'] ?? 'discover';
         $collected = [];
         $page = 1;
         $maxPages = 1000;
-        
+
         $discoverDefaults = [
             'sort_by' =>  'vote_average.desc',
             'vote_count.gte' => 1000,
@@ -94,12 +94,12 @@ class TmdbApiClient {
             'top-rated' => 'movie/top_rated',
             'now-playing' => 'movie/now_playing',
         ];
-        
+
         $endpoint = $endpoints[$method] ?? $endpoints['discover'];
-        
+
         while(count($collected) < $limit && $page <=$maxPages) {
             $query = ['page' => $page];
-            
+
             if ($endpoint === 'discover/movie') {
                 $query = array_merge($query, $discoverDefaults);
             }
@@ -130,10 +130,10 @@ class TmdbApiClient {
             $existing = array_flip($existingIds);
 
             if (empty($results)) break;
-            
+
             foreach ($results as $r) {
                 $releaseDate = $r['release_date'] ?? null;
-                
+
                 $isTooOld = empty($releaseDate) || $releaseDate < '1970-01-01';
                 $isExisting = isset($existing[$r['id']]);
 
@@ -243,9 +243,9 @@ class TmdbApiClient {
 
     protected function buildOptions(array $query = []): array
     {
-        if ($this->apiKey && empty($this->bearer)) {
-            $query['api_key'] = $this->apiKey;
-        }
+//        if ($this->apiKey && empty($this->bearer)) {
+//            $query['api_key'] = $this->apiKey;
+//        }
 
         $options = ['query' => $query];
 

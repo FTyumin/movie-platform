@@ -31,18 +31,19 @@
         </div>
 
         {{-- Top review --}}
-        <div class="rounded-xl bg-neutral-900/80 border border-white/5 p-5">
-            <p class="text-sm text-gray-400">Top Review</p>
-            <a href="{{ route('reviews.show',$topReview ) }}">
-                <p class="text-white font-medium mt-1 line-clamp-2">
-                    {{ $topReview?->title ?? '—' }}
+        @if($topReview)
+            <div class="rounded-xl bg-neutral-900/80 border border-white/5 p-5">
+                <p class="text-sm text-gray-400">Top Review</p>
+                <a href="{{ route('reviews.show',$topReview ) }}">
+                    <p class="text-white font-medium mt-1 line-clamp-2">
+                        {{ $topReview?->title ?? '—' }}
+                    </p>
+                </a>
+                <p class="text-gray-400 text-sm">
+                    {{ $topReview?->liked_by_count ?? 0 }} likes
                 </p>
-            </a>
-            <p class="text-gray-400 text-sm">
-                {{ $topReview?->liked_by_count ?? 0 }} likes
-            </p>
-        </div>
-
+            </div>
+        @endif
         {{-- Suggestions --}}
         <div class="rounded-xl bg-neutral-900/80 border border-white/5 p-5">
             <p class="text-sm text-gray-400">Pending Suggestions</p>

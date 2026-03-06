@@ -22,10 +22,10 @@
                     <label for="count" class="block text-sm font-medium text-gray-300 mb-2">
                         Number of movies
                     </label>
-                    <input type="number" id="count" name="count" value="{{ old('count', 50) }}" 
+                    <input type="number" id="count" name="count" value="{{ old('count', 50) }}"
                         min="1"
                         max="1000"
-                        class="w-full px-4 py-3 rounded-lg bg-black  border border-gray-600 
+                        class="w-full px-4 py-3 rounded-lg bg-black  border border-gray-600
                                focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                         placeholder="e.g. 100"
                         required
@@ -56,7 +56,7 @@
 
         <!-- Back link -->
         <div class="text-center mt-6">
-            <a href="{{ url()->previous() }}" class="text-gray-400 hover:text-white transition">
+            <a href="/admin" class="text-gray-400 hover:text-white transition">
                 ← Back to admin
             </a>
         </div>
