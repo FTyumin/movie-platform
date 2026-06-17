@@ -18,7 +18,6 @@ use Faker\Factory as FakerFactory;
 
 class DatabaseSeeder extends Seeder
 {
-    // php artisan test --testsuite=Feature
 
     public function run(): void
     {

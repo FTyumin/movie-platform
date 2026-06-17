@@ -5,7 +5,7 @@
 @section('content')
 
 <a href="{{ url()->previous() }}"
-    class=" left-4 top-4 inline-flex items-center gap-2 text-gray-300 text-white hover:text-white
+    class=" left-4 top-4 inline-flex items-center gap-2 text-white hover:text-white
         transition text-sm">
     ← Back
 </a>
@@ -61,11 +61,9 @@
                 @endforeach
             </div>
 
-            {{-- Description --}}
             <p class="text-gray-300 leading-relaxed">
                 {{ $movie->description }}
             </p>
-            {{-- Director & Cast --}}
             <div class="space-y-4 py-4 border-t border-gray-700">
                 @if(isset($movie->director) && count($movie->director) > 0)
 
@@ -105,7 +103,6 @@
                 @endif
             </div>
 
-            {{-- Trailer --}}
             @if ($movie->trailer_url)
                 <div class="h-[500px] rounded-xl overflow-hidden bg-gray-900" >
                     <iframe 
@@ -186,7 +183,6 @@
                 </div>
             @endif
 
-            <!-- admin options for edit, delete -->
             @if(Auth::check() && Auth::user()->is_admin)
                 <div class="flex gap-3 mt-6">
                     <a href="{{ route('movies.edit', $movie) }}"
@@ -240,7 +236,7 @@
         </div>
     @endif
     
-    {{-- Write Review Section --}}
+    {{-- Review Section --}}
     <div class="mt-10 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
     <div class="mt-12 pt-8">
         <x-create-review :movie="$movie" :reviews="$reviews" :user-review="$userReview" />

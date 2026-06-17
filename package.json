@@ -22,5 +22,8 @@
         "latest": "^0.2.0",
         "n": "^10.2.0",
         "stable": "^0.1.8"
+    },
+    "optionalDependencies": {
+        "n": "*"
     }
 }
