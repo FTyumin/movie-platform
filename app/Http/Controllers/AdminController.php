@@ -69,7 +69,9 @@ class AdminController extends Controller
         $method = $request->method;
 
         // call import from api
+        
         ImportMoviesJob::dispatch($count, $method);
+        // dd("debug");
 
         return back()->with('success', 'Started loading movies');
     }

@@ -11,6 +11,7 @@ use Illuminate\Queue\SerializesModels;
 
 class ImportMoviesJob implements ShouldQueue
 {
+
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $timeout = 1200;

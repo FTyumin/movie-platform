@@ -6,6 +6,7 @@ use App\Models\Genre;
 use App\Models\Movie;
 use App\Models\Person;
 use App\Services\TmdbApiClient;
+use Illuminate\Support\Facades\Log;
 
 class ImportService
 {
@@ -16,6 +17,7 @@ class ImportService
 
     public function importTopMovies(int $count = 200, string $method): void
     {
+        dd("debug");
         $genres = Genre::all()->keyBy('name');
         $data = $this->api->getTopMovies($count, ['method' => $method]);
 
