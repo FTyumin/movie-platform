@@ -68,16 +68,6 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-            <a href="/admin" class="group flex items-center gap-3 rounded-xl border border-white/5 bg-neutral-900/60 p-4 hover:border-yellow-500/40 hover:bg-neutral-900 transition-colors">
-                <div class="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                    @svg('heroicon-o-shield-check', 'w-5 h-5 text-yellow-400')
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-white">Admin dashboard</p>
-                    <p class="text-xs text-gray-400">Overview & health</p>
-                </div>
-            </a>
-
             <a href="{{ route('movies.create') }}" class="group flex items-center gap-3 rounded-xl border border-white/5 bg-neutral-900/60 p-4 hover:border-yellow-500/40 hover:bg-neutral-900 transition-colors">
                 <div class="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center">
                     @svg('heroicon-o-pencil-square', 'w-5 h-5 text-yellow-400')

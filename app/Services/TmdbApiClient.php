@@ -7,6 +7,7 @@ use App\Models\Genre;
 use App\Models\Person;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Facades\Log;
 
 class TmdbApiClient {
     protected Client $http;
@@ -15,7 +16,7 @@ class TmdbApiClient {
     protected ?string $apiKey;
 
     public function __construct() {
-        $this->base   = rtrim(config('services.tmdb.base', env('TMDB_BASE', 'https://api.themoviedb.org/3')), '/');
+        $this->base   = rtrim('https://api.themoviedb.org/3', '/');
         $this->bearer = env('TMDB_BEARER_TOKEN');
         $this->apiKey = env('TMDB_API_KEY');
 
@@ -38,7 +39,7 @@ class TmdbApiClient {
             $data = json_decode((string) $res->getBody(), true);
             return $data;
         } catch (GuzzleException $e) {
-            \Log::warning('Api request failed');
+            Log::warning('Api request failed');
             return null;
         }
     }
@@ -57,7 +58,7 @@ class TmdbApiClient {
             $trailer_key = $trailer['key'] ?? null;
             return $trailer_key;
         } catch (GuzzleException $e) {
-            \Log::warning('Api request failed');
+            Log::warning('Api request failed');
             return null;
         }
     }
@@ -86,9 +87,6 @@ class TmdbApiClient {
             ];
 
         }
-
-        // dd($actorNames);
-
         return $actorNames;
     }
 
@@ -103,7 +101,7 @@ class TmdbApiClient {
         $collected = [];
         $page = 1;
         $maxPages = 1000;
-        
+
         $discoverDefaults = [
             'sort_by' =>  'vote_average.desc',
             'vote_count.gte' => 1000,
@@ -140,7 +138,7 @@ class TmdbApiClient {
                 $res = $this->http->get($endpoint, $options);
                 $data = json_decode((string) $res->getBody(), true);
             } catch (\GuzzleHttp\Exception\GuzzleException $e) {
-                \Log::error("TMDb getTopMovies failed on page {$page}: " . $e->getMessage());
+                Log::error("TMDb getTopMovies failed on page {$page}: " . $e->getMessage());
                 break;
             }
 
@@ -266,10 +264,9 @@ class TmdbApiClient {
 
     protected function buildOptions(array $query = []): array
     {
-        if ($this->apiKey && empty($this->bearer)) {
-            $query['api_key'] = $this->apiKey;
-        }
 
+        $query['api_key'] = $this->apiKey;
+        $client = new \GuzzleHttp\Client();
         $options = ['query' => $query];
 
         if ($this->bearer) {
@@ -278,6 +275,9 @@ class TmdbApiClient {
                 'Accept' => 'application/json',
             ];
         }
+
+        // Log::error($options);
+
 
         return $options;
     }
