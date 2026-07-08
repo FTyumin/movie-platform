@@ -35,8 +35,7 @@ class MovieController extends Controller
 
         // display recs for logged in user
         if($id) {
-            $userRecommendations = $this->contentRecommender->getRecommendationsForUser($id, 10);
-            Cache::remember("user:{$id}:recs", 3600, function () use ($id) {
+            $userRecommendations = Cache::remember("user:{$id}:recs", 3600, function () use ($id) {
                 return $this->contentRecommender->getRecommendationsForUser($id, 10);
             });
 
@@ -94,10 +93,9 @@ class MovieController extends Controller
 
     public function show(Movie $movie)
     {
-        $similarMovies = $this->contentRecommender->findSimilarMovies($movie->id);
         $id = $movie->id;
 
-        Cache::remember("movie:{$id}:recs", 3600, function () use ($id) {
+        $similarMovies =  Cache::remember("movie:{$id}:recs", 3600, function () use ($id) {
                 return $this->contentRecommender->findSimilarMovies($id, 8);
             });
 

@@ -41,7 +41,7 @@
                     @if($review->spoilers)
                         <div class="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg" x-data="{ open: false }">
                             <div class="flex items-center gap-2">
-                                @svg('heroicon-o-exclamation-triangle', 'w-5 h-5 text-yellow-500 flex-shrink-0')
+                                @svg('heroicon-o-exclamation-triangle', 'w-5 h-5 text-yellow-500 shrink-0')
                                 <span class="text-sm text-yellow-500 font-medium">This review contains spoilers</span>
                                 <button type="button" class="ml-auto px-3 py-1 bg-yellow-500 text-gray-900 text-xs font-medium rounded hover:bg-yellow-400"
                                     @click="open = !open">
@@ -75,16 +75,16 @@
                             @csrf
                             <button type="submit" class="flex items-center gap-1">
                                 @if($review->likedBy->contains(auth()->id()))
-                                    ❤️
+                                    â¤ï¸
                                 @else
-                                    🤍
+                                    ðŸ¤
                                 @endif
                                 <span class="text-white">{{ $review->likedBy->count() }}</span>
                             </button>
                         </form>
                     @else
                         <div class="flex items-center gap-1">
-                            🤍
+                            ðŸ¤
                             <span class="text-white">{{ $review->likedBy->count() }}</span>
                         </div>
                     @endauth

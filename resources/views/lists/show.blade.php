@@ -12,7 +12,7 @@
 
     {{-- List Header --}}
     <div class="flex items-start gap-4 mb-4">
-        <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-2xl flex items-center justify-center flex-shrink-0">
+        <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-2xl flex items-center justify-center shrink-0">
             @svg('heroicon-o-list-bullet', 'w-8 h-8 text-gray-900')
         </div>
 
@@ -69,7 +69,7 @@
                         by <span class="font-medium">{{ $list->user->name }}</span>
                     </span>
                 </div>
-                <span class="text-gray-500 text-sm">•</span>
+                <span class="text-gray-500 text-sm">â€¢</span>
                 <span class="text-gray-400 text-sm">{{ $list->created_at->format('M d, Y') }}</span>
             </div>
         </div>

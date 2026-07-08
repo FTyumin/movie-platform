@@ -115,7 +115,7 @@
       <div class="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 hover:bg-gray-800/70 hover:border-gray-600 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/10 h-full flex flex-col">
           {{-- List Header --}}
           <div class="flex items-start justify-between mb-4">
-              <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+              <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shrink-0">
                   @svg('heroicon-o-list-bullet', 'w-6 h-6 text-white')
               </div>
               <div class="flex items-center gap-2 text-xs text-gray-400 bg-gray-700/50 px-3 py-1 rounded-full">
@@ -155,7 +155,7 @@
           </h3>
 
           {{-- List Description --}}
-          <p class="text-gray-400 text-sm mb-4 flex-grow line-clamp-3 leading-relaxed">
+          <p class="text-gray-400 text-sm mb-4 grow line-clamp-3 leading-relaxed">
               {{ $list->description ?? 'No description provided' }}
           </p>
 

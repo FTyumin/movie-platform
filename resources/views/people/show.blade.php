@@ -6,13 +6,13 @@
 
 <div class="max-w-6xl mx-auto px-4 py-8">
     <a href="{{ url()->previous() }}" class="inline-flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors mb-4">
-        ← Back
+        â† Back
     </a>
 
     {{-- Header: photo + bio --}}
     <div class="flex flex-col md:flex-row gap-8">
         {{-- Director photo --}}
-        <div class="flex-shrink-0">
+        <div class="shrink-0">
             <img src="https://image.tmdb.org/t/p/w500/{{ $person->profile_path }}"
                  alt="{{ $person->name }}"
                  class="w-64 h-80 object-cover rounded-xl shadow">

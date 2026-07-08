@@ -15,7 +15,7 @@
                         <div class="block">
                             <div class="flex gap-4 p-6">
                                 {{-- Movie Poster --}}
-                                <div class="flex-shrink-0">
+                                <div class="shrink-0">
                                 
                                 </div>
 
@@ -41,7 +41,7 @@
                                                         </div>
                                                         <span class="text-gray-300 text-sm font-medium">{{ $post->activityable->user->name }}</span>
                                                     </a>
-                                                    <span class="text-gray-500">•</span>
+                                                    <span class="text-gray-500">â€¢</span>
                                                     <time class="text-sm text-gray-400">{{ $post->created_at->diffForHumans() }}</time>
                                                 </div>
                                             </div>
@@ -58,7 +58,7 @@
                         <div class="block">
                             <div class="flex gap-4 p-6">
                                 {{-- Movie Poster --}}
-                                <div class="flex-shrink-0">
+                                <div class="shrink-0">
                                     @if($post->activityable && $post->activityable->movie)
                                     <a href="{{ route('movies.show', $post->activityable->movie->slug) }}">
                                         <img src="https://image.tmdb.org/t/p/w200/{{ $post->activityable->movie->poster_url }}"
@@ -92,7 +92,7 @@
                                                         </div>
                                                         <span class="text-gray-300 text-sm font-medium">{{ $post->user->name }}</span>
                                                     </a>
-                                                    <span class="text-gray-500">•</span>
+                                                    <span class="text-gray-500">â€¢</span>
                                                     <time class="text-sm text-gray-400">{{ $post->created_at->diffForHumans() }}</time>
                                                 </div>
                                             </div>
@@ -128,7 +128,7 @@
                                                         </div>
                                                         <span class="text-gray-300 text-sm font-medium"></span>
                                                     </a>
-                                                    <span class="text-gray-500">•</span>
+                                                    <span class="text-gray-500">â€¢</span>
                                                     <time class="text-sm text-gray-400">{{ $post->created_at->diffForHumans() }}</time>
                                                 </div>
                                             </div>

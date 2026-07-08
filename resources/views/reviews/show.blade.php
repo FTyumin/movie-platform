@@ -3,7 +3,7 @@
 @section('content')
 <div class="max-w-4xl mx-auto px-4 py-8">
     <a href="{{ url()->previous() }}" class="inline-flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors mb-4">
-        ← Back
+        â† Back
     </a>
     {{-- Review Card --}}
     <article class="bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8">
@@ -30,7 +30,7 @@
                             </div>
                             <span class="text-gray-300 font-medium">{{ $review->user->name }}</span>
                         </a>
-                        <span class="text-gray-500">•</span>
+                        <span class="text-gray-500">â€¢</span>
                         <time class="text-sm text-gray-400">{{ $review->created_at->format('M d, Y') }}</time>
                     </div>
                 </div>
@@ -58,7 +58,7 @@
                     {{-- Spoiler Warning --}}
                     <div x-show="!showSpoiler" class="p-4 bg-yellow-500/10 border-2 border-yellow-500/30 rounded-lg">
                         <div class="flex items-start gap-3">
-                            @svg('heroicon-o-exclamation-triangle', 'w-5 h-5 text-yellow-500 flex-shrink-0')
+                            @svg('heroicon-o-exclamation-triangle', 'w-5 h-5 text-yellow-500 shrink-0')
                             <div class="flex-1">
                                 <h3 class="font-semibold text-yellow-500 mb-1">Spoiler Warning</h3>
                                 <p class="text-sm text-gray-300 mb-3">This review contains spoilers that may reveal important plot points.</p>
@@ -93,9 +93,9 @@
     
                 <button type="submit" class="flex items-center gap-1">
                     @if($review->likedBy->contains(auth()->id()))
-                        ❤️
+                        â¤ï¸
                     @else
-                        🤍
+                        ðŸ¤
                     @endif
                     <span class="text-white">{{ $review->likedBy->count() }}</span>
                 </button>
@@ -122,7 +122,7 @@
             @foreach($review->comments as $comment)
             <div class="px-6 py-4 hover:bg-gray-700/30 transition-colors">
                 <div class="flex gap-3">
-                    <div class="flex-shrink-0">
+                    <div class="shrink-0">
                         <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center">
                             <span class="text-white font-semibold">{{ substr($comment->user->name, 0, 1) }}</span>
                         </div>
@@ -132,7 +132,7 @@
                             <a href="{{ route('profile.show', $comment->user) }}" class="font-medium text-white hover:text-yellow-400 transition-colors">
                                 {{ $comment->user->name }}
                             </a>
-                            <span class="text-gray-500">•</span>
+                            <span class="text-gray-500">â€¢</span>
                             <time class="text-sm text-gray-400">{{ $comment->created_at->diffForHumans() }}</time>
                         </div>
                         <p class="text-gray-300 leading-relaxed">{{ $comment->description }}</p>
