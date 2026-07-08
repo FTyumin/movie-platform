@@ -18,30 +18,21 @@
     </div>
 
     <!-- Center: Search Bar (Desktop Only) -->
-    <div class="hidden md:flex flex-1 max-w-2xl mx-6">
-      <form class="relative w-full" method="GET" action="{{ route('movies.search') }}">
-        @csrf
-        <label for="search" class="sr-only">Search movies, directors and actors</label>
-        <div class="relative">
-          <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-            @svg('heroicon-o-magnifying-glass', 'w-5 h-5 text-gray-400')
-          </div>
-          
-          <input type="search" id="search" name="search"
-            class="block w-full pl-12 pr-24 py-3 text-sm text-white placeholder-gray-400 bg-gray-800/50 border border-gray-700
-             rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-            placeholder="Search movies, directors, actors" 
-            autocomplete="off"
-          />
-          
-          <button type="submit" 
-            class="absolute right-2 top-1/2 -translate-y-1/2 bg-amber-600 hover:bg-yellow-700 text-white font-medium
-             rounded-lg text-sm px-4 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
-            Search
-          </button>
-        </div>
-      </form>
-    </div>
+      <label class="input">
+        <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <g
+            stroke-linejoin="round"
+            stroke-linecap="round"
+            stroke-width="2.5"
+            fill="none"
+            stroke="currentColor"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+          </g>
+        </svg>
+        <input type="search" required placeholder="Search" />
+      </label>
 
     <!-- Right Section: Actions -->
     <div class="flex items-center gap-3">
