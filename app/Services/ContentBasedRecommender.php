@@ -9,7 +9,7 @@ use App\Models\User;
 
 class ContentBasedRecommender
 {
-    function findSimilarMovies($movieId, $limit = 5)
+    function findSimilarMovies(int $movieId, int $limit = 5)
     {
         $target = Movie::with(['genres:id,name', 'people:id'])->find($movieId);
         if (!$target) return [];
@@ -78,7 +78,7 @@ class ContentBasedRecommender
 
     function calculateMovieSimilarity(Movie $movie1, Movie $movie2) {
         if((!$movie1) or (!$movie2)) {
-            return;
+            return [];
         }
         
         // Get parameter IDs as arrays
@@ -133,9 +133,8 @@ class ContentBasedRecommender
         $result = [];
 
         foreach($ids as $id) {
-            $person = Person::find($id);
+            $person = Person::findOrFail($id);
             if($person->type == 'actor') {
-
                 $movies = $person->moviesAsActor->toArray();
             } else {
                 $movies = $person->moviesAsDirector->toArray();
@@ -146,7 +145,7 @@ class ContentBasedRecommender
         $correctResult = [];
 
         // build correct format
-        foreach($movies as $movie) {
+        foreach($result as $movie) {
             $correctResult[] = [
                 'movie' => $movie,
                 'similarity' => 0.2,
@@ -163,22 +162,22 @@ class ContentBasedRecommender
         foreach($recs as &$rec) {
             $actors = $rec['movie']->actors->pluck('id')->toArray();
 
-            if(in_array($rec['movie']->director_id, $favoriteIds)) {
+            if(array_intersect($rec['movie']->director->pluck('id')->toArray(), $favoriteIds)) {
                 $rec['similarity'] *= 1.2;
             }
             if(array_intersect($actors, $favoriteIds)) {
                 $rec['similarity'] *= 1.2;
             }
+
         }
         return $recs;
     }
 
-    function getRecommendationsForUser($userId, $limit) {
+    function getRecommendationsForUser(int $userId, int $limit) {
         $user = User::find($userId);
         if(!$user) {
-            return;
+            return [];
         }
-        // retrieve user's favorite genres
         $favoriteGenres = $user->favoriteGenres;
 
         //movies that user shouldn't get as recommendations
@@ -260,7 +259,7 @@ class ContentBasedRecommender
             return $b['similarity'] <=> $a['similarity'];
         });
 
-        $result = array_slice($result, 0, $limit);
+        // $result = array_slice($result, 0, $limit);
         if (count($result) < $limit) {
             $missing = $limit - count($result);
 
@@ -277,15 +276,17 @@ class ContentBasedRecommender
                     $unique[$movieId] = $rec;
                 }
             }
-
             $result = array_values($unique);
-
-            usort($result, function($a, $b) {
-                return $b['similarity'] <=> $a['similarity'];
-            });
-
             $result = array_slice($result, 0, $limit);
         }
+
+        $result = $this->checkUserFavorites($result, $user);
+
+        usort($result, function($a, $b) {
+            return $b['similarity'] <=> $a['similarity'];
+        });
+
+        $result = array_slice($result, 0, $limit);
 
         // make sure maximum similarity is 1
         foreach ($result as &$rec) {
@@ -293,13 +294,11 @@ class ContentBasedRecommender
                 $rec['similarity'] = 1;
             }
         }
-
-        $result = $this->checkUserFavorites($result, $user);
-        $result = array_slice($result, 0, $limit);
+        
         return $result;
     }
 
-    private function getRecommendationsForNewUser(User $user, $limit) {
+    private function getRecommendationsForNewUser(User $user, int $limit) {
         if (count($user->favoriteGenres) == 0) {
             return $this->getPopularMovies($limit);
         }
@@ -319,18 +318,18 @@ class ContentBasedRecommender
         return $recs;
     }
 
-    private function getGenreMovies(Genre $genre, $count) {
+    private function getGenreMovies(Genre $genre, int $count) {
 
         $movies = $genre->movies()->limit($count)->get();
 
         // If not enough movies, fill from global pool
         if ($movies->count() < $count) {
             $missing = $count - $movies->count();
-
             $extra = $this->getPopularMovies($missing);
-
             $movies = $movies->merge($extra);
         }
+
+        $movies = $movies->sortByDesc(fn (Movie $movie) => $movie->tmdb_rating);
 
         // Build result format
         return $movies->map(fn($movie) => [
@@ -339,8 +338,12 @@ class ContentBasedRecommender
         ])->toArray();
     }
 
-    function getPopularMovies($limit, $excludeIds = []) {
-        $popularMovies = Movie::where('tmdb_rating', '>', 8)->whereNotIn('id', $excludeIds)->limit($limit)->get();
+    function getPopularMovies(int $limit, $excludeIds = []) {
+        $popularMovies = Movie::where('tmdb_rating', '>', 8)
+            ->whereNotIn('id', $excludeIds)
+            ->orderByDesc('tmdb_rating')
+            ->limit($limit)
+            ->get();
         //exclude seen, favorites
       
         $popularMovies = $popularMovies->map(fn($movie) => [
