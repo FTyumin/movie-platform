@@ -17,7 +17,7 @@ class TmdbApiClient {
 
     public function __construct() {
         $this->base   = rtrim('https://api.themoviedb.org/3', '/');
-        $this->bearer = config('services.tmdb.token');
+        $this->bearer = config('services.tmdb.bearer');
         $this->apiKey = config('services.tmdb.api_key');
 
         $this->http = new Client([

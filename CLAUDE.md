@@ -37,19 +37,25 @@ php artisan db:seed    # creates admin (feodor.tjumin28@gmail.com) and demo (dem
 
 ## Architecture
 
-**Stack:** Laravel 12, PHP 8.2+, MariaDB, Blade + Tailwind CSS + Alpine.js, Livewire 3, Pest for tests, database-backed queues.
+**Stack:** Laravel 12, PHP 8.2+, MariaDB, Blade + Tailwind CSS v4 + daisyUI + Alpine.js, Livewire 3, Pest for tests, database-backed queues.
+
+Tailwind v4 is configured CSS-first in `resources/css/app.css` (`@import "tailwindcss"`, `@plugin "daisyui"`, `@source` directives) — there is no `tailwind.config.js`.
 
 **Environment variables required:**
-- `TMDB_BEARER_TOKEN` or `TMDB_API_KEY` — needed for any TMDB API call (movie imports, additional actor loading)
+- `TMDB_BEARER_TOKEN` or `TMDB_API_KEY` — needed for any TMDB API call (movie imports, additional actor loading). Read through `config('services.tmdb.*')` (`config/services.php`), not `env()` directly, so they survive `config:cache`. **Known bug:** `TmdbApiClient` reads `config('services.tmdb.token')`, but `config/services.php` defines the key as `tmdb.bearer` — the bearer-token path is always null, so only `TMDB_API_KEY` actually works right now.
 - `DB_CONNECTION=mariadb`, `DB_DATABASE=movie_platform`
 
 ### Core Services
 
-**`TmdbApiClient`** (`app/Services/TmdbApiClient.php`) — Guzzle HTTP wrapper for the TMDB API. Handles auth via bearer token (preferred) or API key. Methods: `getTopMovies`, `getMovieWithExtras`, `importMovie`, `loadAdditionalActors`, `trailerKey`, `personData`.
+**`TmdbApiClient`** (`app/Services/TmdbApiClient.php`) — Guzzle HTTP wrapper for the TMDB API. Handles auth via bearer token (preferred) or API key — see the config-key bug noted above. Methods: `getTopMovies`, `getMovieWithExtras`, `importMovie`, `loadAdditionalActors`, `trailerKey`, `personData`.
 
-**`ImportService`** (`app/Services/ImportService.php`) — Bulk import using `importTopMovies()`. Dispatched via `ImportMoviesJob` (20-minute timeout) to the queue. Note: there is a leftover `dd("debug")` at line 20 that will break imports if not removed.
+**`ImportService`** (`app/Services/ImportService.php`) — Bulk import using `importTopMovies()`. Dispatched via `ImportMoviesJob` (20-minute timeout) to the queue.
 
-**`ContentBasedRecommender`** (`app/Services/ContentBasedRecommender.php`) — Jaccard similarity engine using genres (0.3), directors (0.4), and actors (0.3). `getRecommendationsForUser()` pulls from favorites, high-rated reviews, seen movies, and favorite genres — falls back to popular movies. Results cached at `user:{id}:recs` and `movie:{id}:recs` (1-hour TTL). Cache is invalidated when user marks a movie.
+**`ContentBasedRecommender`** (`app/Services/ContentBasedRecommender.php`) — Jaccard similarity engine using genres (0.3), directors (0.4), and actors (0.3). `getRecommendationsForUser()` pulls from favorites, high-rated reviews, seen movies, and favorite genres — falls back to popular movies. Covered by `tests/Feature/ContentBasedRecommenderTest.php` and `tests/Unit/ContentBasedRecommenderTest.php`, backed by model factories in `database/factories/`.
+
+Caching lives in the controller layer, not the service itself: `MovieController` wraps `getRecommendationsForUser()`/`findSimilarMovies()` in `Cache::remember` at `user:{id}:recs` / `movie:{id}:recs` (1-hour TTL). `MarkController`, `ReviewController`, and `QuizController` call `Cache::forget("user:{id}:recs")` on marks, reviews, and quiz completion respectively.
+
+See `IMPROVEMENT_PLAN.md` for the current list of known bugs and the recommendation-engine roadmap.
 
 ### Key Patterns
 
