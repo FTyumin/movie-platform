@@ -24,7 +24,7 @@ class MovieController extends Controller
     }
 
     public function home() {
-        $movies = Movie::all()->take(5);
+        $movies = Movie::orderByDesc('tmdb_rating')->take(5)->get();
         $genres = Genre::inRandomOrder()->take(4)->withCount('movies')->get();
 
         // selecting public lists
@@ -109,7 +109,7 @@ class MovieController extends Controller
             $userReview = $reviews->firstWhere('user_id', auth()->id());
         }
 
-        $additionalActors = $this->apiClient->loadAdditionalActors($movie->id);
+        $additionalActors = $this->apiClient->loadAdditionalActors($movie->tmdb_id);
 
         return view('movies.show', compact('movie', 'similarMovies', 'reviews', 'userReview', 'additionalActors'));
     }

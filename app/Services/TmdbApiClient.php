@@ -17,8 +17,8 @@ class TmdbApiClient {
 
     public function __construct() {
         $this->base   = rtrim('https://api.themoviedb.org/3', '/');
-        $this->bearer = env('TMDB_BEARER_TOKEN');
-        $this->apiKey = env('TMDB_API_KEY');
+        $this->bearer = config('services.tmdb.token');
+        $this->apiKey = config('services.tmdb.api_key');
 
         $this->http = new Client([
             'base_uri' => $this->base . '/',
@@ -72,11 +72,15 @@ class TmdbApiClient {
     public function loadAdditionalActors(int $movieId) {
 
         $movieInfo = $this->getMovieWithExtras($movieId);
+
+        if(empty($movieInfo)) {
+            return [];
+        }
+
         $actorIdsWithRole = [];
         // selecting 15 actors
         $actorInfo = array_slice($movieInfo['credits']['cast'], 5, 10);
 
-  
         $actorNames = [];
 
         foreach ($actorInfo as $actor) {
@@ -181,6 +185,9 @@ class TmdbApiClient {
             return null;
         }
 
+        $directorIdsWithRole = [];
+        $actorIdsWithRole = [];
+
         $movie = Movie::updateOrCreate(
             ['tmdb_id' => $movie_info['id']],
             [
@@ -243,9 +250,6 @@ class TmdbApiClient {
             $actorIdsWithRole[$person->id] = ['role' => 'actor'];
         }
 
-        foreach ($actorIdsWithRole as $personId => $pivot) {
-                $movie->people()->attach($personId, $pivot);
-        }
         $genreIds = collect($movieGenres)->map(function ($genreData) use (&$genres) {
             $genre = $genres->firstWhere('name', $genreData['name']);
 
@@ -264,9 +268,7 @@ class TmdbApiClient {
 
     protected function buildOptions(array $query = []): array
     {
-
         $query['api_key'] = $this->apiKey;
-        $client = new \GuzzleHttp\Client();
         $options = ['query' => $query];
 
         if ($this->bearer) {
@@ -275,9 +277,6 @@ class TmdbApiClient {
                 'Accept' => 'application/json',
             ];
         }
-
-        // Log::error($options);
-
 
         return $options;
     }
