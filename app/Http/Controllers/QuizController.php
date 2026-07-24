@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use App\Models\Genre;
+use App\Models\User;
 class QuizController extends Controller
 {
     public function show() {
@@ -14,7 +15,9 @@ class QuizController extends Controller
     }
 
     public function store(Request $request) {
-        $user = Auth::user();
+        $id = Auth::id();
+
+        $user = User::find($id);
         
         //avoid duplicates
         $user->favoriteGenres()->detach();

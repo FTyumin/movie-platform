@@ -10,6 +10,8 @@ use App\Models\WantToWatch;
 use App\Services\ContentBasedRecommender;
 use Maize\Markable\Models\Favorite;
 
+# php artisan test tests/Feature/ContentBasedRecommenderTest.php
+
 beforeEach(function () {
     $this->recommender = new ContentBasedRecommender();
 });

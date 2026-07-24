@@ -326,7 +326,7 @@ class ContentBasedRecommender
         if ($movies->count() < $count) {
             $missing = $count - $movies->count();
             $extra = $this->getPopularMovies($missing);
-            $movies = $movies->merge($extra);
+            $movies = $movies->merge($extra);  # this line crashed the code
         }
 
         $movies = $movies->sortByDesc(fn (Movie $movie) => $movie->tmdb_rating);

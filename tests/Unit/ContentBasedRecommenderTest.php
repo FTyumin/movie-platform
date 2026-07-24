@@ -1,5 +1,6 @@
 <?php
 
+# php artisan test tests/Unit/ContentBasedRecommenderTest.php
 use App\Services\ContentBasedRecommender;
 
 beforeEach(function () {
