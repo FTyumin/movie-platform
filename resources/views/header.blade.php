@@ -5,7 +5,7 @@
     <div class="flex items-center gap-6">
       <!-- Logo -->
       <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-        <span class="text-lg sm:text-xl font-bold text-white tracking-tight">FilmStack</span>
+        <span class="font-condensed uppercase text-lg sm:text-xl font-semibold text-white tracking-[0.18em]">Film<span class="text-primary">stack</span></span>
       </a>
 
       <!-- Desktop Navigation -->
@@ -18,7 +18,7 @@
     </div>
 
     <!-- Center: Search Bar (Desktop Only) -->
-      <label class="input">
+      <label class="input hidden md:flex">
         <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <g
             stroke-linejoin="round"
@@ -47,8 +47,8 @@
 
       <!-- Sign In Button (Desktop) / User Profile -->
       @guest
-        <a href="{{ url('/login') }}" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white 
-          bg-yellow-500/90 hover:bg-yellow-400 rounded-lg">
+        <a href="{{ url('/login') }}" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-900
+          bg-gradient-to-r from-primary to-secondary hover:brightness-110 rounded-field">
           @svg('heroicon-o-arrow-right-on-rectangle', 'w-4 h-4')
           Sign In
         </a>
@@ -60,7 +60,7 @@
       @endguest
 
       @auth
-        <a href="{{ route('dashboard') }}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden ring-2 ring-gray-700 hover:ring-blue-500 transition-all">
+        <a href="{{ route('dashboard') }}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden ring-2 ring-gray-700 hover:ring-primary transition-all">
           @if(auth()->user()->image)
             <img src="{{ asset('storage/' . auth()->user()->image) }}"
                 alt="{{ auth()->user()->name}}"
@@ -94,12 +94,12 @@
         </div>
         
         <input  type="search" id="mobile-search-input" name="search"
-          class="block w-full pl-12 pr-20 py-3 text-sm text-white placeholder-gray-400 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+          class="block w-full pl-12 pr-20 py-3 text-sm text-white placeholder-gray-400 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
           placeholder="Search movies..."  autocomplete="off"
         />
-        
-        <button  type="submit" 
-          class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-sm px-3 py-2 transition-colors">
+
+        <button  type="submit"
+          class="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-neutral-900 font-medium rounded-lg text-sm px-3 py-2 transition-colors">
           Search
         </button>
       </div>
@@ -130,7 +130,7 @@
       </a>
 
       @guest
-      <a href="{{ url('/login') }}" class="flex items-center gap-3 px-4 py-3 mt-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+      <a href="{{ url('/login') }}" class="flex items-center gap-3 px-4 py-3 mt-2 text-neutral-900 bg-gradient-to-r from-primary to-secondary hover:brightness-110 rounded-lg transition-colors">
         @svg('heroicon-o-arrow-right-on-rectangle', 'w-5 h-5')
         <span class="font-medium">Sign In</span>
       </a>

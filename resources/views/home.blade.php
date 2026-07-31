@@ -1,182 +1,245 @@
 @extends('layouts.app')
 @section('content')
-<section class="relative min-h-[60vh] md:min-h-[55vh] lg:min-h-[50vh] overflow-hidden isolate">
 
-    <!-- Dark cinematic overlay -->
-    <div class="absolute inset-0 opacity-10">
-        <img src="{{ asset('images/bg-hero.jpg') }}" alt="Cinema background" 
-             class="w-full h-full object-cover rounded-md">
+{{-- ============================================================
+     THE MARQUEE — the hero is the cinema's marquee. The featured
+     film's title runs huge between two strips of chasing bulbs,
+     with a real reader review billed underneath.
+     ============================================================ --}}
+<section class="grain relative overflow-hidden isolate rounded-box border border-primary/20 bg-base-200">
+
+    {{-- house backdrop, kept faint --}}
+    <div class="absolute inset-0 opacity-[0.10]">
+        <img src="{{ asset('images/cinema.webp') }}" alt="" class="w-full h-full object-cover">
     </div>
-    
-    <!-- Content -->
-    <div class="relative mx-auto max-w-6xl px-6 py-32 md:py-40 flex flex-col items-start">
-      @auth
-        <span class="text-yellow-300 font-semibold tracking-wide text-sm md:text-base uppercase mb-4">
-            Welcome Back, {{  auth()->user()->name  ?? '' }}
-        </span>
-      @endauth
-        <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight max-w-3xl drop-shadow-xl">
-            Discover. Track. Share.
-        </h1>
+    <div class="absolute inset-0 bg-gradient-to-t from-base-100 via-base-100/70 to-transparent"></div>
+    <div class="spotlight-layer pointer-events-none absolute inset-0"></div>
 
-        <p class="mt-5 max-w-2xl text-white/80 md:text-lg leading-relaxed">
-            Browse movies, follow your friends, create lists, and see what everyone is watching.
+    <div class="relative mx-auto max-w-5xl px-6 py-16 md:py-24 text-center">
+
+        {{-- eyebrow --}}
+        <p class="font-condensed uppercase tracking-[0.4em] text-xs md:text-sm text-primary">
+            @auth
+                Tonight's programme, {{ auth()->user()->name }}
+            @else
+                Now Showing
+            @endauth
         </p>
 
-        <!-- Buttons -->
-        <div class="mt-8 flex flex-wrap gap-4">
-            <a href="/reviews" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-semibold bg-white/10 backdrop-blur border border-white/20 hover:bg-white/20 hover:border-white/40 transition focus:outline-none focus:ring-2 focus:ring-yellow-500/60">
-               @svg('heroicon-o-star', 'h-5 w-5 text-yellow-300') 
-               Browse Latest Reviews
-            </a>
+        {{-- top run of chase-lights --}}
+        <div class="marquee-bulbs mt-8 mx-auto max-w-3xl" aria-hidden="true"></div>
 
-            <a href="#search" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold bg-gradient-to-r from-yellow-500 to-amber-600 text-gray-900 hover:from-yellow-400 hover:to-amber-500 transition shadow-lg shadow-yellow-500/30 focus:outline-none focus:ring-2 focus:ring-yellow-500/60">
-               @svg('heroicon-o-magnifying-glass-circle', 'h-5 w-5') 
-               Find a Movie
+        {{-- the nameplate --}}
+        <div class="py-6 md:py-8">
+            @if($featuredReview)
+                <h1 class="animate-nameplate font-marquee uppercase leading-[0.92] break-words text-base-content text-[2.75rem] sm:text-7xl md:text-8xl"
+                    style="text-shadow: 0 0 34px rgba(255,200,90,0.18)">
+                    {{ $featuredReview->movie->name }}
+                </h1>
+            @else
+                <h1 class="animate-nameplate font-marquee uppercase leading-[0.92] break-words text-base-content text-6xl sm:text-7xl md:text-8xl"
+                    style="text-shadow: 0 0 34px rgba(255,200,90,0.18)">
+                    Filmstack
+                </h1>
+            @endif
+        </div>
+
+        {{-- bottom run of chase-lights, running the other way --}}
+        <div class="marquee-bulbs reverse mx-auto max-w-3xl" aria-hidden="true"></div>
+
+        {{-- the billing --}}
+        @if($featuredReview)
+            <div class="animate-billing mt-10 mx-auto max-w-2xl">
+                <p class="font-display italic text-xl md:text-2xl leading-snug text-base-content/90">
+                    &ldquo;{{ \Illuminate\Support\Str::limit($featuredReview->description, 150) }}&rdquo;
+                </p>
+                <div class="mt-5 flex items-center justify-center gap-3 font-mono text-xs md:text-sm">
+                    <span class="uppercase tracking-widest text-base-content/60">{{ $featuredReview->user->name }}</span>
+                    <span class="text-primary">/</span>
+                    <a href="{{ route('movies.show', $featuredReview->movie) }}" class="text-base-content/60 hover:text-base-content transition">{{ $featuredReview->movie->name }}</a>
+                    <span class="inline-flex items-center gap-1 text-accent">
+                        @svg('heroicon-o-star', 'w-4 h-4') {{ $featuredReview->rating }}/10
+                    </span>
+                </div>
+            </div>
+        @else
+            <p class="animate-billing mt-8 mx-auto max-w-xl text-base-content/70 md:text-lg leading-relaxed">
+                Log what you watch, rate it, and see what the whole house is talking about.
+            </p>
+        @endif
+
+        {{-- admission --}}
+        <div class="mt-11 flex flex-wrap items-center justify-center gap-5">
+            <a href="/reviews"
+               class="ticket inline-flex items-center gap-2 bg-primary px-9 py-3.5 font-condensed uppercase tracking-widest text-sm font-semibold text-primary-content hover:brightness-110 transition focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-base-100">
+                @svg('heroicon-o-ticket', 'h-5 w-5')
+                Read the reviews
+            </a>
+            <a href="{{ route('movies.index') }}"
+               class="group inline-flex items-center gap-2 font-condensed uppercase tracking-widest text-sm text-base-content/70 hover:text-base-content transition">
+                Find a film
+                @svg('heroicon-o-arrow-right', 'h-4 w-4 transition-transform group-hover:translate-x-1')
             </a>
         </div>
     </div>
 </section>
 
-<!-- Trending Movies -->
-<div class="my-20 mt-[10rem] mx-6 sm:mx-8 lg:mx-28 p-8">
-  <div class="mb-12">
-    <h1 class="mb-3 text-4xl font-bold leading-tight tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
-      Featured <span class="text-yellow-600">Movies</span>
-    </h1>
-    <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl">
-      Discover the most popular and trending movies that everyone is talking about
-    </p>
-  </div>
+@php
+    // shared section-heading markup lives inline; keeps the "programme" voice
+    // consistent without a partial for four short blocks.
+@endphp
 
-  <!-- Responsive Grid -->
-  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
-    @foreach($movies as $movie)
-        <x-movie-card :movie="$movie" />
-    @endforeach
-  </div>
+{{-- ============================================================
+     THIS WEEK'S PROGRAMME — top-rated titles
+     ============================================================ --}}
+<section class="mx-auto max-w-7xl px-6 lg:px-10 mt-20">
+    <div class="mb-10 flex items-end justify-between gap-4 border-b border-base-content/10 pb-4">
+        <div>
+            <p class="font-condensed uppercase tracking-[0.35em] text-xs text-primary">Now showing &middot; Top rated</p>
+            <h2 class="mt-2 font-condensed font-semibold uppercase text-4xl md:text-5xl leading-none tracking-tight text-base-content">
+                This Week&rsquo;s Programme
+            </h2>
+        </div>
+        <a href="/movies" class="hidden sm:inline-flex items-center gap-2 font-condensed uppercase tracking-widest text-xs text-base-content/60 hover:text-primary transition whitespace-nowrap">
+            Full programme
+            @svg('heroicon-o-arrow-right', 'w-4 h-4')
+        </a>
+    </div>
 
-  <!-- View All Button -->
-  <div class="mt-12 text-center">
-    <a href="/movies" class="inline-flex items-center px-6 py-3 text-base font-medium text-yellow-300  rounded-lg 0 focus:outline-none focus:ring-4 focus:ring-blue-300 bg-black transition-colors">
-      View All Movies
-      @svg('heroicon-o-arrow-right', 'w-4 h-4 ml-2')
-    </a>
-  </div>
-    @auth
-        <h1 class="mb-3 mt-10 text-4xl font-bold leading-tight tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
-            Our picks <span class="text-yellow-600">For You</span>
-        </h1>
-    @endauth
-
-<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
-    @foreach($userRecommendations as $movie)
-        <x-movie-card :movie="$movie['movie']" />
-    @endforeach
-  </div>
-</div>
-
-<!-- Genres -->
-<div class="my-16 mx-10 sm:px-8 lg:px-28">
-    <h1 class="mb-4 text-4xl font-extrabold leading-none tracking-tight text-white md:text-5xl lg:text-6xl">Genres</h1>
-    <h1 class="mb-2 text-2xl leading-none tracking-tight text-white md:text-2xl lg:text-3xl">Browse movies by genre</h1>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-16 gap-y-10">
-        @foreach($genres as $genre)
-            <div class="bg-solid-800 border-gray-700 border border-gray-200 rounded-lg shadow-sm transition transform hover:scale-[1.02] hover:border-white/20">
-                <div class="p-5">
-                    <a href="#">
-                        <h5 class="mb-2 text-2xl font-bold tracking-tight text-white ">
-                        {{ $genre->name }} ({{ $genre->movies_count }})
-                        </h5>
-                    </a>
-                    <div class="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-6"></div>
-
-                    <a href="{{ route('movies.index', ['genres' => [$genre->id]] ) }}" class="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-yellow-500 to-yellow-600
-                      hover:from-yellow-400 hover:to-yellow-500
-                      shadow-lg shadow-yellow-500/20 ">
-                        View Movies
-                        @svg('heroicon-o-arrow-right', 'rtl:rotate-180 w-3.5 h-3.5 ms-2')
-                    </a>
-                </div>
-            </div>   
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        @foreach($movies as $movie)
+            <x-movie-card :movie="$movie" />
         @endforeach
     </div>
-</div>
 
-<!-- Popular Lists -->
- @if($lists->isNotEmpty())
-  <div class="my-16 mx-10 sm:px-8 lg:px-28">
-      <h1 class="mb-4 text-4xl font-extrabold leading-none tracking-tight text-white md:text-5xl lg:text-6xl">Lists</h1>
+    @auth
+        {{-- RESERVED FOR YOU — personal recommendations --}}
+        @if(!empty($userRecommendations))
+            <div class="mt-20 mb-10 flex items-end justify-between gap-4 border-b border-base-content/10 pb-4">
+                <div>
+                    <p class="font-condensed uppercase tracking-[0.35em] text-xs text-primary">Your private screening</p>
+                    <h2 class="mt-2 font-condensed font-semibold uppercase text-4xl md:text-5xl leading-none tracking-tight text-base-content">
+                        Reserved For You
+                    </h2>
+                </div>
+            </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-16 gap-y-10">
-      @foreach($lists as $list)
-    <a href="{{ route('lists.show', $list) }}" class="group">
-      <div class="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 hover:bg-gray-800/70 hover:border-gray-600 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/10 h-full flex flex-col">
-          {{-- List Header --}}
-          <div class="flex items-start justify-between mb-4">
-              <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shrink-0">
-                  @svg('heroicon-o-list-bullet', 'w-6 h-6 text-white')
-              </div>
-              <div class="flex items-center gap-2 text-xs text-gray-400 bg-gray-700/50 px-3 py-1 rounded-full">
-                  @svg('heroicon-o-film', 'w-3 h-3')
-                  {{ $list->movies->count() ?? 0 }} movies
-              </div>
-          </div>
-
-          {{-- Movie Posters Preview --}}
-          @if($list->movies->count() > 0)
-            <div class="mb-4 flex gap-2 overflow-hidden">
-                @foreach($list->movies->take(3) as $movie)
-                    <div class="flex-1 aspect-[2/3] rounded-lg overflow-hidden bg-gray-700 relative group/poster">
-                        <img 
-                            src="https://image.tmdb.org/t/p/w500/{{ $movie->poster_url }}"
-                            alt="{{ $movie->title }}"
-                            class="w-full h-full object-cover transition-transform duration-300 group-hover/poster:scale-110"
-                        >
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover/poster:opacity-100 transition-opacity duration-300"></div>
-                    </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                @foreach($userRecommendations as $movie)
+                    <x-movie-card :movie="$movie['movie']" />
                 @endforeach
-                
-                @if($list->movies->count() > 3)
-                    <div class="flex-1 aspect-[2/3] rounded-lg bg-gray-700/50 border-2 border-dashed border-gray-600 flex items-center justify-center">
-                        <div class="text-center">
-                            <p class="text-2xl font-bold text-gray-400">+{{ $list->movies->count() - 3 }}</p>
-                            <p class="text-xs text-gray-500 mt-1">more</p>
+            </div>
+        @endif
+    @endauth
+</section>
+
+{{-- ============================================================
+     ON THE BILL — browse by genre, as a programme listing
+     ============================================================ --}}
+<section class="mx-auto max-w-7xl px-6 lg:px-10 mt-20">
+    <div class="mb-10 border-b border-base-content/10 pb-4">
+        <p class="font-condensed uppercase tracking-[0.35em] text-xs text-primary">Choose your showing</p>
+        <h2 class="mt-2 font-condensed font-semibold uppercase text-4xl md:text-5xl leading-none tracking-tight text-base-content">
+            On The Bill
+        </h2>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        @foreach($genres as $genre)
+            <a href="{{ route('movies.index', ['genres' => [$genre->id]]) }}"
+               class="group relative overflow-hidden border border-base-content/10 bg-base-200 hover:bg-base-300 hover:border-primary/40 transition-colors">
+                <span class="absolute left-0 top-0 h-full w-1 bg-primary origin-top scale-y-0 group-hover:scale-y-100 transition-transform duration-300"></span>
+                <div class="flex items-center justify-between gap-4 px-6 py-6">
+                    <span class="font-condensed uppercase tracking-wide text-xl md:text-2xl text-base-content group-hover:text-primary transition-colors">
+                        {{ $genre->name }}
+                    </span>
+                    <span class="font-mono text-xs text-base-content/40 whitespace-nowrap">
+                        {{ $genre->movies_count }} films
+                        @svg('heroicon-o-arrow-right', 'inline w-3.5 h-3.5 -mt-0.5 transition-transform group-hover:translate-x-1')
+                    </span>
+                </div>
+            </a>
+        @endforeach
+    </div>
+</section>
+
+{{-- ============================================================
+     DOUBLE FEATURES — reader-programmed lists
+     ============================================================ --}}
+@if($lists->isNotEmpty())
+    <section class="mx-auto max-w-7xl px-6 lg:px-10 mt-20 mb-8">
+        <div class="mb-10 border-b border-base-content/10 pb-4">
+            <p class="font-condensed uppercase tracking-[0.35em] text-xs text-primary">Programmed by readers</p>
+            <h2 class="mt-2 font-condensed font-semibold uppercase text-4xl md:text-5xl leading-none tracking-tight text-base-content">
+                Double Features
+            </h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            @foreach($lists as $list)
+                <a href="{{ route('lists.show', $list) }}" class="group">
+                    <div class="bg-base-200 border border-base-content/10 rounded-box p-6 hover:bg-base-300 hover:border-primary/40 transition-all duration-300 h-full flex flex-col">
+                        {{-- header --}}
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-field flex items-center justify-center shrink-0">
+                                @svg('heroicon-o-list-bullet', 'w-6 h-6 text-primary-content')
+                            </div>
+                            <div class="flex items-center gap-2 font-mono text-xs text-base-content/50 bg-base-300 px-3 py-1 rounded-field">
+                                @svg('heroicon-o-film', 'w-3 h-3')
+                                {{ $list->movies->count() ?? 0 }} films
+                            </div>
+                        </div>
+
+                        {{-- poster preview --}}
+                        @if($list->movies->count() > 0)
+                            <div class="mb-4 flex gap-2 overflow-hidden">
+                                @foreach($list->movies->take(3) as $movie)
+                                    <div class="flex-1 aspect-[2/3] rounded-field overflow-hidden bg-base-300 relative group/poster">
+                                        <img src="https://image.tmdb.org/t/p/w500/{{ $movie->poster_url }}"
+                                             alt="{{ $movie->name }}"
+                                             class="w-full h-full object-cover transition-transform duration-300 group-hover/poster:scale-110">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover/poster:opacity-100 transition-opacity duration-300"></div>
+                                    </div>
+                                @endforeach
+
+                                @if($list->movies->count() > 3)
+                                    <div class="flex-1 aspect-[2/3] rounded-field bg-base-300 border-2 border-dashed border-base-content/20 flex items-center justify-center">
+                                        <div class="text-center">
+                                            <p class="font-condensed text-2xl font-bold text-base-content/50">+{{ $list->movies->count() - 3 }}</p>
+                                            <p class="font-mono text-xs text-base-content/40 mt-1">more</p>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
+                        {{-- title --}}
+                        <h3 class="font-condensed uppercase tracking-wide text-xl font-semibold text-base-content mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                            {{ $list->name }}
+                        </h3>
+
+                        {{-- description --}}
+                        <p class="text-base-content/60 text-sm mb-4 grow line-clamp-3 leading-relaxed">
+                            {{ $list->description ?? 'No description provided' }}
+                        </p>
+
+                        {{-- footer --}}
+                        <div class="flex items-center justify-between pt-4 border-t border-base-content/10">
+                            <div class="flex items-center gap-2">
+                                <div class="w-10 h-10 rounded-full overflow-hidden">
+                                    <img src="{{ $list->user->image ? asset('storage/' . $list->user->image) : asset('images/person-placeholder.png') }}" alt="" class="h-full w-full object-cover">
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-base-content/80">{{ $list->user->name }}</p>
+                                    <p class="font-mono text-xs text-base-content/40">{{ $list->created_at->diffForHumans() }}</p>
+                                </div>
+                            </div>
+                            @svg('heroicon-o-arrow-right', 'w-5 h-5 text-base-content/40 group-hover:text-primary group-hover:translate-x-1 transition-all')
                         </div>
                     </div>
-                @endif
-            </div>
-          @endif
-
-          {{-- List Title --}}
-          <h3 class="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors line-clamp-2">
-              {{ $list->name }}
-          </h3>
-
-          {{-- List Description --}}
-          <p class="text-gray-400 text-sm mb-4 grow line-clamp-3 leading-relaxed">
-              {{ $list->description ?? 'No description provided' }}
-          </p>
-
-          {{-- List Footer --}}
-          <div class="flex items-center justify-between pt-4 border-t border-gray-700">
-              <div class="flex items-center gap-2">
-                  <div class="w-10 h-10 rounded-full overflow-hidden">
-                      <img src="{{ $list->user->image ? asset('storage/' . $list->user->image) : asset('images/person-placeholder.png') }}" alt="" class="h-full w-full object-cover">
-                  </div>
-                  <div>
-                      <p class="text-sm font-medium text-gray-300">{{ $list->user->name }}</p>
-                      <p class="text-xs text-gray-500">{{ $list->created_at->diffForHumans() }}</p>
-                  </div>
-              </div>
-              @svg('heroicon-o-arrow-right', 'w-5 h-5 text-gray-400 group-hover:text-blue-400 group-hover:translate-x-1 transition-all')
-          </div>
-      </div>
-  </a>
-  @endforeach
-  </div>
-  </div>
-
+                </a>
+            @endforeach
+        </div>
+    </section>
 @endif
 @endsection

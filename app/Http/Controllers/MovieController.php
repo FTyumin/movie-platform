@@ -30,6 +30,14 @@ class MovieController extends Controller
         // selecting public lists
         $lists = MovieList::visibleTo(auth()->user())->with('user')->get();
 
+        // pull a strong, spoiler-free review to headline the hero
+        $featuredReview = \App\Models\Review::with(['user', 'movie'])
+            ->where('spoilers', false)
+            ->whereNotNull('description')
+            ->orderByDesc('rating')
+            ->latest()
+            ->first();
+
         $id = auth()->id();
         $userRecommendations = [];
 
@@ -39,8 +47,8 @@ class MovieController extends Controller
                 return $this->contentRecommender->getRecommendationsForUser($id, 10);
             });
 
-        } 
-        return view('home', compact('movies', 'genres', 'lists', 'userRecommendations'));
+        }
+        return view('home', compact('movies', 'genres', 'lists', 'userRecommendations', 'featuredReview'));
     }
 
     public function index(Request $request) {

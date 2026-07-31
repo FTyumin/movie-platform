@@ -10,14 +10,14 @@
  
    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=anton:400|fraunces:500,600,600i,700|inter:400,500,600,700|jetbrains-mono:400,500|oswald:400,500,600,700" rel="stylesheet" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans antialiased flex flex-col min-h-screen">
   @include('header')
 
-  <main class="px-6 sm:px-4  py-8 flex-1 bg-gradient-to-b from-neutral-900 to-neutral-800">
+  <main class="px-6 sm:px-4  py-8 flex-1 bg-gradient-to-b from-base-100 to-[#120d0a]">
     @if (session('success'))
       <div class="mb-6 rounded-lg bg-green-600/20 border border-green-500/30 px-4 py-3 text-green-400">
           {{ session('success') }}
