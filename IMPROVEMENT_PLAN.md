@@ -7,17 +7,8 @@ Grounded in a code review on 2026-07-10 (branch `dev`). Organized by area, with 
 ## 1. Quick wins / bug fixes (do these first)
 
 ### Recommender bugs (`app/Services/ContentBasedRecommender.php`)
-- **[bug]** `getPersonMovies()` builds `$correctResult` from `$movies` (the *last* person's movies only) instead of the accumulated `$result` — every person except the last is silently dropped. Also crashes if `Person::find($id)` returns null. - DONE
-- **[bug]** `checkUserFavorites()` reads `$rec['movie']->director_id`, but `Movie` has no `director_id` column — directors live in the `person_movie` pivot. The director boost never fires. - DONE
-- **[bug]** `getRecommendationsForUser()` returns `null` when the user doesn't exist and `calculateMovieSimilarity()` returns `null` on missing movies — callers expect arrays. Return `[]`.
-- `getPopularMovies()` and `getGenreMovies()` have **no `orderBy`** — "popular" is just an arbitrary 8+ rated subset in insertion order. Order by `tmdb_rating` desc (and later by real popularity).
-- `checkUserFavorites()` boost runs *after* the final sort/slice, so boosted items can't rise in rank and scores can exceed the 1.0 clamp applied earlier. 
 
 ### TMDB client (`app/Services/TmdbApiClient.php`)
-- **[bug]** `env()` called in the constructor (lines 20–21). Under `php artisan config:cache` (any production deploy) `env()` returns null and all TMDB calls silently break. Move to `config/services.php` (`config('services.tmdb.token')`).
-- **[bug]** `importMovie()`: `$directorIdsWithRole` / `$actorIdsWithRole` are undefined when a movie has no director or no cast → "undefined variable" error. Initialize as `[]`.
-- **[bug]** `loadAdditionalActors()` doesn't null-check `getMovieWithExtras()` — a TMDB outage crashes every movie detail page (see §3).
-- **[bug]** `loadAdditionalActors()` is called with the *local* movie id (`MovieController::show`, line 112) but queries TMDB with it — it fetches the wrong movie's cast unless local and TMDB ids coincide. Pass `$movie->tmdb_id`.
 - `buildOptions()` instantiates an unused Guzzle client and always appends `api_key` even when null; remove both.
 - Repeated `attach()` on re-import duplicates pivot rows (`importMovie`, `ImportService`). Use `syncWithoutDetaching()` for people like you already do for genres.
 

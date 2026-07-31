@@ -6,7 +6,7 @@
 
 <div class="max-w-6xl mx-auto px-4 py-8">
     <a href="{{ url()->previous() }}" class="inline-flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors mb-4">
-        â† Back
+        Back
     </a>
 
     {{-- Header: photo + bio --}}
