@@ -25,18 +25,22 @@ class MovieController extends Controller
 
     public function home() {
         $movies = Movie::orderByDesc('tmdb_rating')->take(5)->get();
-        $genres = Genre::inRandomOrder()->take(4)->withCount('movies')->get();
+        // the homepage genre rail is a filter shortcut, so lead with the
+        // genres that actually have something behind them
+        $genres = Genre::withCount('movies')->orderByDesc('movies_count')->take(10)->get();
 
         // selecting public lists
         $lists = MovieList::visibleTo(auth()->user())->with('user')->get();
 
-        // pull a strong, spoiler-free review to headline the hero
-        $featuredReview = \App\Models\Review::with(['user', 'movie'])
+        // strongest spoiler-free reviews — first one headlines the hero,
+        // the rest fill the "Top reviews" rail
+        $topReviews = \App\Models\Review::with(['user', 'movie'])
             ->where('spoilers', false)
             ->whereNotNull('description')
             ->orderByDesc('rating')
             ->latest()
-            ->first();
+            ->take(5)
+            ->get();
 
         $id = auth()->id();
         $userRecommendations = [];
@@ -48,7 +52,7 @@ class MovieController extends Controller
             });
 
         }
-        return view('home', compact('movies', 'genres', 'lists', 'userRecommendations', 'featuredReview'));
+        return view('home', compact('movies', 'genres', 'lists', 'userRecommendations', 'topReviews'));
     }
 
     public function index(Request $request) {

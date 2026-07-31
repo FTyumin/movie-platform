@@ -1,139 +1,119 @@
-<header class="sticky top-0 w-full py-4 px-4 sm:px-6 z-50 bg-gradient-to-b from-neutral-800 to-neutral-900 backdrop-blur-md border-b border-gray-800">
-  <nav class="relative w-full flex justify-between items-center gap-4">
-    
-    <!-- Left Section: Logo + Desktop Navigation -->
-    <div class="flex items-center gap-6">
-      <!-- Logo -->
-      <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-        <span class="font-condensed uppercase text-lg sm:text-xl font-semibold text-white tracking-[0.18em]">Film<span class="text-primary">stack</span></span>
-      </a>
+@php
+  // Nav is a flat list so the active-state rule lives in one place.
+  $navLinks = [
+    ['label' => 'Movies',  'href' => route('movies.index'), 'active' => request()->is('movies*')],
+    ['label' => 'Reviews', 'href' => route('reviews'),      'active' => request()->is('reviews*')],
+    ['label' => 'Lists',   'href' => route('lists.index'),  'active' => request()->is('lists*')],
+    ['label' => 'Feed',    'href' => url('/feed'),          'active' => request()->is('feed*')],
+  ];
+@endphp
 
-      <!-- Desktop Navigation -->
-      <div class="hidden lg:flex items-center gap-6">
-        <a href="{{ route('movies.index') }}" class="text-gray-300 hover:text-white transition-colors font-medium text-md">Movies</a>
-        <a href="/reviews" class="text-gray-300 hover:text-white transition-colors font-medium text-md">Reviews</a>
-        <a href="/lists" class="text-gray-300 hover:text-white transition-colors font-medium text-md">Lists</a>
-        <a href="/feed" class="text-gray-300 hover:text-white transition-colors font-medium text-md">Feed</a>
-      </div>
+<header class="sticky top-0 z-50 w-full border-b border-white/[0.07] bg-base-100/85 backdrop-blur-xl">
+  <nav class="mx-auto flex w-full max-w-[110rem] items-center gap-4 px-5 py-3.5 sm:px-8">
+
+    {{-- Wordmark --}}
+    <a href="/" class="shrink-0 font-display text-xl font-black uppercase tracking-[-0.02em] text-primary transition hover:brightness-110 sm:text-2xl">
+      Filmstack
+    </a>
+
+    {{-- Desktop nav --}}
+    <div class="ml-6 hidden items-center gap-7 lg:flex">
+      @foreach($navLinks as $link)
+        <a href="{{ $link['href'] }}"
+           @class([
+             'relative py-1 font-display text-[0.8rem] font-medium uppercase tracking-[0.14em] transition-colors',
+             'text-primary' => $link['active'],
+             'text-base-content/55 hover:text-base-content' => ! $link['active'],
+           ])
+           @if($link['active']) aria-current="page" @endif>
+          {{ $link['label'] }}
+          @if($link['active'])
+            <span class="absolute inset-x-0 -bottom-0.5 h-[2px] bg-primary"></span>
+          @endif
+        </a>
+      @endforeach
     </div>
 
-    <!-- Center: Search Bar (Desktop Only) -->
-      <label class="input hidden md:flex">
-        <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <g
-            stroke-linejoin="round"
-            stroke-linecap="round"
-            stroke-width="2.5"
-            fill="none"
-            stroke="currentColor"
-          >
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.3-4.3"></path>
-          </g>
-        </svg>
-        <input type="search" required placeholder="Search" />
-      </label>
+    {{-- Search --}}
+    <form method="GET" action="{{ route('movies.search') }}" class="ml-auto hidden md:block">
+      <label for="site-search" class="sr-only">Search films and people</label>
+      <div class="flex w-56 items-center gap-2 rounded-selector border border-white/[0.07] bg-base-200 px-4 py-2 transition focus-within:border-primary/40 lg:w-72">
+        @svg('heroicon-o-magnifying-glass', 'h-4 w-4 shrink-0 text-base-content/40')
+        <input id="site-search" type="search" name="search" placeholder="Search…" autocomplete="off"
+               class="w-full bg-transparent text-sm text-base-content placeholder:text-base-content/55 focus:outline-none" />
+      </div>
+    </form>
 
-    <!-- Right Section: Actions -->
-    <div class="flex items-center gap-3">
-      
-      <!-- Mobile Search Button -->
-      <button onclick="document.getElementById('mobile-search').classList.toggle('hidden')" 
-        class="md:hidden p-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
-        type="button" aria-label="Toggle search"
-      >
-        @svg('heroicon-o-magnifying-glass', 'w-5 h-5')
+    {{-- Actions --}}
+    <div class="ml-auto flex shrink-0 items-center gap-2 md:ml-0 md:pl-4">
+
+      {{-- Mobile search toggle --}}
+      <button type="button" aria-label="Search"
+        onclick="document.getElementById('mobile-search').classList.toggle('hidden')"
+        class="rounded-selector p-2 text-base-content/60 transition hover:bg-base-200 hover:text-base-content md:hidden">
+        @svg('heroicon-o-magnifying-glass', 'h-5 w-5')
       </button>
 
-      <!-- Sign In Button (Desktop) / User Profile -->
-      @guest
-        <a href="{{ url('/login') }}" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-900
-          bg-gradient-to-r from-primary to-secondary hover:brightness-110 rounded-field">
-          @svg('heroicon-o-arrow-right-on-rectangle', 'w-4 h-4')
-          Sign In
-        </a>
-        
-        <!-- Mobile Sign In Icon -->
-        <a href="{{ url('/login') }}" class="sm:hidden p-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors" aria-label="Sign in">
-          @svg('heroicon-o-arrow-right-on-rectangle', 'w-5 h-5')
-        </a>
-      @endguest
-
       @auth
-        <a href="{{ route('dashboard') }}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden ring-2 ring-gray-700 hover:ring-primary transition-all">
-          @if(auth()->user()->image)
-            <img src="{{ asset('storage/' . auth()->user()->image) }}"
-                alt="{{ auth()->user()->name}}"
-                class="w-full h-full object-cover">
-          @else 
-            <img src="{{ asset('images/person-placeholder.png') }}"
-                alt="placeholder img"
-                class="w-full h-full object-cover">
-          @endif
+        <a href="{{ url('/feed') }}" aria-label="Activity feed"
+           class="hidden rounded-selector p-2 text-base-content/60 transition hover:bg-base-200 hover:text-base-content sm:block">
+          @svg('heroicon-o-bell', 'h-5 w-5')
+        </a>
+
+        <a href="{{ route('dashboard') }}" aria-label="Your profile"
+           class="h-9 w-9 overflow-hidden rounded-full ring-1 ring-white/10 transition hover:ring-primary">
+          <img src="{{ auth()->user()->image ? asset('storage/' . auth()->user()->image) : asset('images/person-placeholder.png') }}"
+               alt="" class="h-full w-full object-cover">
         </a>
       @endauth
 
-      <!-- Mobile Menu Button -->
-      <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" 
-        class="lg:hidden p-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors" 
-        type="button" aria-label="Toggle menu"
-      >
-        @svg('heroicon-o-bars-3', 'w-6 h-6')
+      @guest
+        <a href="{{ url('/login') }}"
+           class="rounded-selector bg-primary px-5 py-2 font-display text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-primary-content transition hover:brightness-110">
+          Log in
+        </a>
+      @endguest
+
+      {{-- Mobile menu toggle --}}
+      <button type="button" aria-label="Menu"
+        onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
+        class="rounded-selector p-2 text-base-content/60 transition hover:bg-base-200 hover:text-base-content lg:hidden">
+        @svg('heroicon-o-bars-3', 'h-6 w-6')
       </button>
     </div>
   </nav>
 
-  <!-- Mobile Search Bar -->
-  <div id="mobile-search" class="hidden md:hidden mt-4 pt-4 border-t border-gray-800">
-    <form class="relative" method="GET" action="{{ route('movies.search') }}">
-      @csrf
-      <label for="mobile-search-input" class="sr-only">Search movies</label>
-      <div class="relative">
-        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-          @svg('heroicon-o-magnifying-glass', 'w-5 h-5 text-gray-400')
-        </div>
-        
-        <input  type="search" id="mobile-search-input" name="search"
-          class="block w-full pl-12 pr-20 py-3 text-sm text-white placeholder-gray-400 bg-gray-800/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-          placeholder="Search movies..."  autocomplete="off"
-        />
-
-        <button  type="submit"
-          class="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-neutral-900 font-medium rounded-lg text-sm px-3 py-2 transition-colors">
-          Search
-        </button>
+  {{-- Mobile search --}}
+  <div id="mobile-search" class="hidden border-t border-white/[0.07] px-5 py-4 md:hidden">
+    <form method="GET" action="{{ route('movies.search') }}">
+      <label for="mobile-search-input" class="sr-only">Search films and people</label>
+      <div class="flex items-center gap-2 rounded-selector border border-white/[0.07] bg-base-200 px-4 py-2.5 focus-within:border-primary/40">
+        @svg('heroicon-o-magnifying-glass', 'h-4 w-4 shrink-0 text-base-content/40')
+        <input id="mobile-search-input" type="search" name="search" placeholder="Search…" autocomplete="off"
+               class="w-full bg-transparent text-sm text-base-content placeholder:text-base-content/55 focus:outline-none" />
       </div>
     </form>
   </div>
 
-  <!-- Mobile Navigation Menu -->
-  <div id="mobile-menu" class="lg:hidden hidden mt-4 pt-4 border-t border-gray-800">
-    <div class="flex flex-col gap-3">
-      <a href="{{ route('movies.index') }}" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
-        @svg('heroicon-o-film', 'w-5 h-5')
-        <span class="font-medium">Movies</span>
-      </a>
-      
-      <a href="/reviews" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
-        @svg('heroicon-o-star', 'w-5 h-5')
-        <span class="font-medium">Reviews</span>
-      </a>
-      
-      <a href="/lists" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
-        @svg('heroicon-o-list-bullet', 'w-5 h-5')
-        <span class="font-medium">Lists</span>
-      </a>
-      
-      <a href="/feed" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
-        @svg('heroicon-o-rectangle-stack', 'w-5 h-5')
-        <span class="font-medium">Feed</span>
-      </a>
+  {{-- Mobile nav --}}
+  <div id="mobile-menu" class="hidden border-t border-white/[0.07] px-5 py-4 lg:hidden">
+    <div class="flex flex-col">
+      @foreach($navLinks as $link)
+        <a href="{{ $link['href'] }}"
+           @class([
+             'rounded-field px-3 py-3 font-display text-sm uppercase tracking-[0.14em] transition-colors',
+             'text-primary' => $link['active'],
+             'text-base-content/70 hover:bg-base-200 hover:text-base-content' => ! $link['active'],
+           ])>
+          {{ $link['label'] }}
+        </a>
+      @endforeach
 
       @guest
-      <a href="{{ url('/login') }}" class="flex items-center gap-3 px-4 py-3 mt-2 text-neutral-900 bg-gradient-to-r from-primary to-secondary hover:brightness-110 rounded-lg transition-colors">
-        @svg('heroicon-o-arrow-right-on-rectangle', 'w-5 h-5')
-        <span class="font-medium">Sign In</span>
-      </a>
+        <a href="{{ url('/login') }}"
+           class="mt-3 rounded-selector bg-primary px-3 py-3 text-center font-display text-sm font-semibold uppercase tracking-[0.12em] text-primary-content">
+          Log in
+        </a>
       @endguest
     </div>
   </div>
