@@ -237,7 +237,7 @@
         <a href="{{ route('lists.index') }}"
            class="group flex flex-col justify-between rounded-box border border-white/[0.06] bg-base-200 p-8 transition-colors hover:border-primary/30">
             <div>
-                <p class="font-display text-[0.72rem] uppercase tracking-[0.22em] text-base-content">Reader lists</p>
+                <p class="font-display text-[0.72rem] uppercase tracking-[0.22em] text-base-content">Community lists</p>
                 <p class="mt-4 text-sm leading-relaxed text-base-content/60">
                     @if($lists->isNotEmpty())
                         {{ $lists->count() }} {{ \Illuminate\Support\Str::plural('collection', $lists->count()) }}
