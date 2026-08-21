@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Review;
 use App\Models\Movie;
+use App\Models\Genre;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
@@ -11,8 +12,36 @@ use Illuminate\Support\Facades\Cache;
 class ReviewController extends Controller
 {
     public function index(Request $request) {
-        $reviews = Review::latest()->paginate(10);
-        return view('reviews.index', compact('reviews'));
+        $sort = $request->get('sort') === 'top' ? 'top' : 'latest';
+        $search = trim((string) $request->get('search', ''));
+        $genreId = $request->get('genre');
+
+        $reviews = Review::query()
+            ->with(['user', 'movie'])
+            ->withCount(['comments', 'likedBy'])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('title', 'like', "%{$search}%")
+                        ->orWhereHas('movie', fn ($q) => $q->where('name', 'like', "%{$search}%"))
+                        ->orWhereHas('user', fn ($q) => $q->where('name', 'like', "%{$search}%"));
+                });
+            })
+            ->when($genreId, function ($query) use ($genreId) {
+                $query->whereHas('movie.genres', fn ($q) => $q->where('genres.id', $genreId));
+            })
+            ->when($sort === 'top', fn ($query) => $query->orderByDesc('rating'), fn ($query) => $query->latest())
+            ->paginate(10)
+            ->withQueryString();
+
+        $genres = Genre::orderBy('name')->get();
+
+        $topReviewers = User::withCount(['reviews' => fn ($q) => $q->where('created_at', '>=', now()->subWeek())])
+            ->having('reviews_count', '>', 0)
+            ->orderByDesc('reviews_count')
+            ->take(5)
+            ->get();
+
+        return view('reviews.index', compact('reviews', 'genres', 'topReviewers', 'sort', 'search', 'genreId'));
     }
 
     public function show(Review $review) {
