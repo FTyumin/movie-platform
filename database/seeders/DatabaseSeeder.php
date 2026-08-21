@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use App\Models\Review;
 
 class DatabaseSeeder extends Seeder
@@ -27,5 +25,7 @@ class DatabaseSeeder extends Seeder
         Review::factory()
             ->count(5)
             ->create();
+
+        $this->call(MovieListSeeder::class);
     }
 }
