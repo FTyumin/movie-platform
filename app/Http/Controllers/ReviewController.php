@@ -45,8 +45,9 @@ class ReviewController extends Controller
     }
 
     public function show(Review $review) {
-        $review->load('comments');
-        return view('reviews.show', compact('review'));
+        $review->load(['user', 'movie.genres', 'movie.director', 'comments.user', 'likedBy']);
+        $reviewerReviewCount = $review->user->reviews()->count();
+        return view('reviews.show', compact('review', 'reviewerReviewCount'));
     }
 
     public function showUserReviews(User $user) {
