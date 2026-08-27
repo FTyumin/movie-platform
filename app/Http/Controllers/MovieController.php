@@ -9,7 +9,6 @@ use App\Models\Movie;
 use App\Models\Genre;
 use App\Models\MovieList;
 use App\Models\Suggestion;
-use App\Models\Person;
 use App\Services\ContentBasedRecommender;
 use App\Services\TmdbApiClient;
 
@@ -56,51 +55,122 @@ class MovieController extends Controller
     }
 
     public function index(Request $request) {
-        $directors = Person::whereHas('moviesAsDirector')->orderBy('last_name')->get();
-        $genres = Genre::all();
-        $decades = [1970, 1980, 1990, 2000, 2010, 2020];
-        $query = Movie::query()->with(['genres', 'actors']);
+        $genres = Genre::orderBy('name')->get();
 
-        // remove empty filter parameters
+        $query = Movie::query()->with(['genres']);
+
+        // remove empty filter parameters so pagination links stay clean
         $clean = array_filter($request->query(), fn($v) => $v !== null && $v !== '' && $v !== []);
 
-        // filter logic
+        if ($request->filled('q')) {
+            $search = $request->input('q');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhereHas('people', function ($p) use ($search) {
+                        $p->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
         if ($request->filled('genres')) {
             $query->whereHas('genres', function ($q) use ($request) {
                 $q->whereIn('genres.id', $request->genres);
             });
         }
 
-        if ($request->filled('directors')) {
-            $query->whereHas('director', function ($q) use ($request) {
-                $q->whereIn('people.id', $request->directors);
-            });
+        $minYear = max(1950, (int) $request->input('min_year', 1950));
+        if ($minYear > 1950) {
+            $query->where('year', '>=', $minYear);
         }
 
-        if ($request->filled('min_rating')) {
-            $query->where('tmdb_rating', '>=', $request->min_rating);
+        $minRating = min(9, max(0, (float) $request->input('min_rating', 0)));
+        if ($minRating > 0) {
+            $query->where('tmdb_rating', '>=', $minRating);
         }
 
-        if (!empty($request->filled('decade'))) {
-            $start = (int) $request->decade;
-            $end = $start + 9;
-            $query->whereBetween('year', [$start, $end]);
+        $statuses = array_values(array_intersect(
+            (array) $request->input('status', []),
+            ['favorite', 'want_to_watch', 'seen']
+        ));
+
+        if (auth()->check() && ! empty($statuses)) {
+            $user = auth()->user();
+            $markedIds = collect();
+            if (in_array('favorite', $statuses)) $markedIds = $markedIds->merge($user->favorites()->pluck('markable_id'));
+            if (in_array('want_to_watch', $statuses)) $markedIds = $markedIds->merge($user->wantToWatch()->pluck('markable_id'));
+            if (in_array('seen', $statuses)) $markedIds = $markedIds->merge($user->seenMovies()->pluck('markable_id'));
+            $query->whereIn('id', $markedIds->unique());
         }
 
-        switch ($request->sort) {
+        $sort = in_array($request->input('sort'), ['year', 'title']) ? $request->input('sort') : 'rating';
+        switch ($sort) {
             case 'year':
                 $query->orderBy('year', 'desc');
                 break;
-            case 'name':
+            case 'title':
                 $query->orderBy('name');
                 break;
             default:
                 $query->orderBy('tmdb_rating', 'desc');
         }
 
-        $movies = $query->paginate(20)->appends($clean);
+        $perPage = in_array((int) $request->input('per_page'), [8, 12, 16]) ? (int) $request->input('per_page') : 12;
 
-        return view('movies.index', compact('movies', 'genres', 'decades', 'directors'));
+        $movies = $query->paginate($perPage)->appends($clean);
+        $totalMovies = Movie::count();
+
+        $watchlistIds = collect();
+        $statusCounts = ['favorite' => 0, 'want_to_watch' => 0, 'seen' => 0];
+        if (auth()->check()) {
+            $user = auth()->user();
+            $watchlistIds = $user->wantToWatch()->pluck('markable_id');
+            $statusCounts = [
+                'favorite' => $user->favorites()->count(),
+                'want_to_watch' => $watchlistIds->count(),
+                'seen' => $user->seenMovies()->count(),
+            ];
+        }
+
+        // filter chips shown above the grid — each links back to the same
+        // query with just that one value removed
+        $buildUrl = function (array $overrides) use ($request) {
+            $params = $request->except('page');
+            foreach ($overrides as $key => $value) {
+                if ($value === null) {
+                    unset($params[$key]);
+                } else {
+                    $params[$key] = $value;
+                }
+            }
+            return route('movies.index', array_filter($params, fn($v) => $v !== null && $v !== '' && $v !== []));
+        };
+
+        $statusLabels = ['favorite' => 'Favorites', 'want_to_watch' => 'Watchlist', 'seen' => 'Seen'];
+
+        $chips = [];
+        foreach ($request->input('genres', []) as $gid) {
+            $genre = $genres->firstWhere('id', (int) $gid);
+            if ($genre) {
+                $remaining = array_values(array_diff($request->input('genres', []), [$gid]));
+                $chips[] = ['label' => $genre->name, 'url' => $buildUrl(['genres' => $remaining ?: null])];
+            }
+        }
+        if ($minYear > 1950) {
+            $chips[] = ['label' => "After {$minYear}", 'url' => $buildUrl(['min_year' => null])];
+        }
+        if ($minRating > 0) {
+            $chips[] = ['label' => number_format($minRating, 1) . '+ rating', 'url' => $buildUrl(['min_rating' => null])];
+        }
+        foreach ($statuses as $s) {
+            $remaining = array_values(array_diff($statuses, [$s]));
+            $chips[] = ['label' => $statusLabels[$s], 'url' => $buildUrl(['status' => $remaining ?: null])];
+        }
+
+        return view('movies.index', compact(
+            'movies', 'genres', 'minYear', 'minRating', 'statuses',
+            'sort', 'perPage', 'totalMovies', 'watchlistIds', 'statusCounts', 'chips'
+        ));
     }
 
     public function show(Movie $movie)
