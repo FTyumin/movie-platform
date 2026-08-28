@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use App\Models\Movie;
 use App\Models\Genre;
 use App\Models\MovieList;
+use App\Models\Person;
+use App\Models\Review;
 use App\Models\Suggestion;
 use App\Services\ContentBasedRecommender;
 use App\Services\TmdbApiClient;
@@ -198,18 +199,62 @@ class MovieController extends Controller
 
     // search bar on homepage
     public function search(Request $request) {
-        $search = $request->input('search');
+        $search = trim((string) $request->input('search', ''));
+        $tab = in_array($request->input('tab'), ['films', 'people', 'reviews', 'lists'])
+            ? $request->input('tab')
+            : 'all';
 
-        $movies = Movie::where('name', 'like', "%{$search}%")
-            ->with('genres')
+        $movies = Movie::query()
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhereHas('genres', fn ($g) => $g->where('name', 'like', "%{$search}%"))
+                        ->orWhereHas('director', fn ($p) => $p->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%"));
+                });
+            })
+            ->with(['genres', 'director'])
+            ->latest()
             ->get();
 
-        $people = DB::table('people')
-            ->where('first_name', 'like', "%{$search}%")
-            ->orWhere('last_name', 'like', "%{$search}%")
+        $people = Person::query()
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%");
+            })
+            ->withCount(['moviesAsActor', 'moviesAsDirector'])
             ->get();
 
-        return view('movies.search', compact('movies', 'search', 'people'));
+        $reviews = Review::query()
+            ->with(['user', 'movie'])
+            ->withCount(['comments', 'likedBy'])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('title', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhereHas('movie', fn ($m) => $m->where('name', 'like', "%{$search}%"))
+                        ->orWhereHas('user', fn ($u) => $u->where('name', 'like', "%{$search}%"));
+                });
+            })
+            ->latest()
+            ->get();
+
+        $lists = MovieList::visibleTo(auth()->user())
+            ->with('user')
+            ->withCount('movies')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->get();
+
+        $watchlistIds = auth()->check() ? auth()->user()->wantToWatch()->pluck('markable_id') : collect();
+
+        return view('movies.search', compact('search', 'tab', 'movies', 'people', 'reviews', 'lists', 'watchlistIds'));
     }
 
     public function create() {
