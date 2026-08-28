@@ -12,7 +12,7 @@
 
     {{-- List Header --}}
     <div class="flex items-start gap-4 mb-4">
-        <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-2xl flex items-center justify-center shrink-0">
+        <div class="w-16 h-16 bg-linear-to-br from-yellow-500 to-amber-600 rounded-2xl flex items-center justify-center shrink-0">
             @svg('heroicon-o-list-bullet', 'w-8 h-8 text-gray-900')
         </div>
 
@@ -65,9 +65,9 @@
                 <div class="flex items-center gap-2">
                     <img src="{{ $list->user->image ? asset('storage/' . $list->user->image) : asset('images/person-placeholder.png') }}"
                         class="h-8 w-8 object-cover rounded-xl">
-                    <span class="text-gray-300 text-sm">
-                        by <span class="font-medium">{{ $list->user->name }}</span>
-                    </span>
+                    <a href="{{ route('profile.show', $list->user) }}" class="font-medium text-base-content transition hover:text-primary">
+                        {{ $list->user->name}}
+                    </a>
                 </div>
                 <span class="text-gray-500 text-sm">â€¢</span>
                 <span class="text-gray-400 text-sm">{{ $list->created_at->format('M d, Y') }}</span>
@@ -87,7 +87,7 @@
                 @foreach($list->movies as $movie)
                     <div class="group relative">
                         <a href="{{ route('movies.show', $movie->slug) }}" class="block">
-                            <div class="aspect-[2/3] bg-gray-700/50 rounded-lg overflow-hidden border border-gray-600/50 hover:border-yellow-500/40 transition-all group-hover:shadow-lg group-hover:shadow-yellow-500/20">
+                            <div class="aspect-2/3 bg-gray-700/50 rounded-lg overflow-hidden border border-gray-600/50 hover:border-yellow-500/40 transition-all group-hover:shadow-lg group-hover:shadow-yellow-500/20">
                                 <img class="w-full h-full object-cover  transition-transform duration-300" 
                                     src="https://image.tmdb.org/t/p/w500/{{ $movie->poster_url }}"  
                                     alt="{{ $movie->title }}" 
@@ -95,7 +95,7 @@
                             </div>
 
                             {{-- Movie Info Overlay --}}
-                            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg flex flex-col justify-end p-3">
+                            <div class="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg flex flex-col justify-end p-3">
                                 <h3 class="text-white font-semibold text-sm mb-1 line-clamp-2">
                                     {{ $movie->name }}
                                 </h3>

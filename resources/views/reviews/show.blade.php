@@ -109,7 +109,7 @@
                                 <p class="font-medium text-primary">This review contains spoilers</p>
                                 <p class="mt-1 text-sm text-base-content/60">Reveals plot points you might want to discover for yourself.</p>
                                 <button type="button" @click="open = true"
-                                    class="mt-3 rounded-selector bg-primary px-4 py-1.5 font-display text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-primary-content transition hover:brightness-110">
+                                    class="mt-3 rounded-selector bg-primary px-4 py-1.5 font-display text-[0.7rem] font-semibold uppercase tracking-widest text-primary-content transition hover:brightness-110">
                                     Show review
                                 </button>
                             </div>
