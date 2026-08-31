@@ -1,101 +1,138 @@
 @extends('layouts.app')
 
-@section('title', $person->first_name)
+@section('title', $person->first_name . ' ' . $person->last_name)
+
+{{-- The hero runs edge-to-edge, so this page manages its own gutters. --}}
+@section('main-class', '')
 
 @section('content')
 
-<div class="max-w-6xl mx-auto px-4 py-8">
-    <a href="{{ url()->previous() }}" class="inline-flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors mb-4">
-        â† Back
+@php
+    $photoUrl = $person->profile_path
+        ? 'https://image.tmdb.org/t/p/w500/' . $person->profile_path
+        : null;
+
+    $directedCount = $person->moviesAsDirector->count();
+    $actedCount = $person->moviesAsActor->count();
+
+    $role = '';
+
+    if($directedCount && $actedCount) {
+        $role = 'Actor/ Director';
+    } else if($directedCount) {
+        $role = 'Director';
+    } else if($actedCount) {
+        $role = 'Actor';
+    } else {
+        $role = null;
+    }
+
+    $isFavorite = auth()->check() && Auth::user()->favoritePeople->pluck('id')->contains($person->id);
+@endphp
+
+{{-- ============================================================
+     HERO — the profile photo thrown out of focus behind the name,
+     with a crisp copy of it floating in front, mirroring the
+     movie-show hero treatment.
+     ============================================================ --}}
+<section class="cb-grain relative isolate overflow-hidden">
+
+    @if($photoUrl)
+        <img src="{{ $photoUrl }}" alt="" aria-hidden="true"
+             class="pointer-events-none absolute inset-0 h-full w-full scale-125 object-cover opacity-30 blur-3xl">
+    @endif
+
+    <div class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-100 via-base-100/70 to-base-100/20"></div>
+    <div class="pointer-events-none absolute inset-0 bg-linear-to-r from-base-100/60 via-transparent to-transparent"></div>
+
+    <a href="{{ url()->previous() }}"
+       class="absolute left-5 top-5 z-10 inline-flex items-center gap-1.5 rounded-selector bg-base-100/60 px-3.5 py-2 font-display text-[0.72rem] uppercase tracking-[0.14em] text-base-content/80 backdrop-blur-md transition hover:bg-base-100/90 hover:text-base-content sm:left-8 sm:top-8">
+        @svg('heroicon-o-arrow-left', 'h-3.5 w-3.5')
+        Back
     </a>
 
-    {{-- Header: photo + bio --}}
-    <div class="flex flex-col md:flex-row gap-8">
-        {{-- Director photo --}}
-        <div class="shrink-0">
-            <img src="https://image.tmdb.org/t/p/w500/{{ $person->profile_path }}"
-                 alt="{{ $person->name }}"
-                 class="w-64 h-80 object-cover rounded-xl shadow">
+    <div class="relative mx-auto flex w-full max-w-[110rem] flex-col gap-8 px-6 pb-12 pt-28 sm:px-8 sm:pb-16 lg:flex-row lg:items-end">
+
+        <div class="hidden w-44 shrink-0 overflow-hidden rounded-box shadow-2xl ring-1 ring-white/10 sm:block lg:w-56">
+            @if($photoUrl)
+                <img src="{{ $photoUrl }}" alt="{{ $person->first_name }} {{ $person->last_name }}"
+                     class="aspect-2/3 w-full object-cover">
+            @else
+                <div class="flex aspect-2/3 w-full items-center justify-center bg-base-200">
+                    @svg('heroicon-o-user', 'h-14 w-14 text-base-content/25')
+                </div>
+            @endif
         </div>
 
-        {{-- Details --}}
-        <div class="flex-1 space-y-4">
-            <div class="flex flex-wrap items-center gap-3">
-                <h1 class="text-3xl font-bold text-white">{{ $person->first_name }} {{ $person->last_name }}</h1>
-                @auth
-                    @php
-                        $isFavorite = Auth::user()->favoritePeople->pluck('id')->contains($person->id);
-                    @endphp
+        <div class="min-w-0">
+            @if($role)
+                <div class="inline-flex items-center gap-1.5 rounded-selector bg-base-200/80 px-3 py-1 font-display text-[0.75rem] font-medium text-primary backdrop-blur-sm">
+                    {{ $role }}
+                </div>
+            @endif
+
+            <h1 class="mt-4 font-display text-4xl font-medium uppercase leading-[1.05] tracking-[0.02em] text-base-content sm:text-5xl lg:text-6xl">
+                {{ $person->first_name }} {{ $person->last_name }}
+            </h1>
+
+            @auth
+                <div class="mt-7 flex flex-wrap items-center gap-3">
                     <form action="{{ route('person.favorite', $person->id) }}" method="POST">
                         @csrf
                         <button type="submit"
-                                class="group inline-flex items-center gap-2 px-3 py-2 {{ $isFavorite ? 'bg-red-600/20' : 'bg-gray-700/50' }} rounded-lg hover:bg-gray-700 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="{{ $isFavorite ? 'currentColor' : 'none' }}" viewBox="0 0 24 24" stroke-width="1.5"
-                                    stroke="currentColor" class="w-5 h-5 text-red-500 group-hover:text-red-500 transition-colors">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                            </svg>
-                            <span class="text-xs {{ $isFavorite ? 'text-red-500' : 'text-gray-400' }} group-hover:text-white transition-colors">Add to Favorites</span>
+                                @class([
+                                    'inline-flex items-center gap-2 rounded-selector border px-5 py-3 font-display text-[0.72rem] font-semibold uppercase tracking-[0.12em] transition',
+                                    'border-primary bg-primary/10 text-primary' => $isFavorite,
+                                    'border-white/15 text-base-content/70 hover:border-primary/40 hover:text-base-content' => ! $isFavorite,
+                                ])>
+                            @svg($isFavorite ? 'heroicon-s-heart' : 'heroicon-o-heart', 'h-4 w-4')
+                            {{ $isFavorite ? 'Favorited' : 'Favorite' }}
                         </button>
                     </form>
-                @endauth
-            </div>
-
-            @if($person->biography)
-                <p class="text-white leading-relaxed">
-                    {{ $person->biography }}
-                </p>
-            @endif
-
+                </div>
+            @endauth
         </div>
     </div>
+</section>
 
-    {{-- Directed Movies --}}
-    <section class="mt-12">
-        
-        @if($person->moviesAsDirector && $person->moviesAsDirector->count())
-            <h2 class="text-2xl text-white font-semibold mb-4">Directed Movies</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                @foreach($person->moviesAsDirector as $movie)
-                    <a href="{{ route('movies.show', $movie->slug) }}"
-                    class="group rounded-xl shadow hover:shadow-md transition overflow-hidden">
-                        <div class="group relative">
-                                <div class="aspect-[2/3] bg-gray-700 rounded-lg overflow-hidden relative">
-                            <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                                src="https://image.tmdb.org/t/p/w500/{{ $movie->poster_url }}"  
-                                alt="Movie poster" />
-                        </div>
-                        </div>
-                    </a>
-                @endforeach
-            </div>
-        @else
-            
-        @endif
+{{-- ============================================================
+     BIOGRAPHY
+     ============================================================ --}}
+@if($person->biography)
+    <section class="mx-auto w-full max-w-[110rem] px-6 pt-16 sm:px-8 {{ ! $directedCount && ! $actedCount ? 'pb-16' : '' }}">
+        <x-section-head title="Biography" />
+        <p class="max-w-3xl text-base leading-relaxed text-base-content/75">
+            {{ $person->biography }}
+        </p>
     </section>
+@endif
 
-    <section class="mt-12">
-        @if($person->moviesAsActor && $person->moviesAsActor->count())
-            <h2 class="text-2xl text-white font-semibold mb-4">Movies</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                @foreach($person->moviesAsActor as $movie)
-                    <a href="{{ route('movies.show', $movie->slug) }}"
-                        class="group rounded-xl shadow hover:shadow-md transition overflow-hidden">
-                        <div class="group relative">
-                            <div class="aspect-[2/3] bg-gray-700 rounded-lg overflow-hidden relative">
-                                <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                                    src="https://image.tmdb.org/t/p/w500/{{ $movie->poster_url }}"  
-                                    alt="Movie poster" />
-                            
-                            
-                            </div>
-                        </div>
-                    </a>
-                @endforeach
-            </div>
-        @endif
+{{-- ============================================================
+     DIRECTING
+     ============================================================ --}}
+@if($directedCount)
+    <section class="mx-auto w-full max-w-[110rem] px-6 pt-16 sm:px-8 {{ ! $actedCount ? 'pb-16' : '' }}">
+        <x-section-head title="Directing" />
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            @foreach($person->moviesAsDirector as $movie)
+                <x-movie-browse-card :movie="$movie" />
+            @endforeach
+        </div>
     </section>
-</div>
+@endif
 
+{{-- ============================================================
+     FILMOGRAPHY
+     ============================================================ --}}
+@if($actedCount)
+    <section class="mx-auto w-full max-w-[110rem] px-6 pt-16 pb-16 sm:px-8">
+        <x-section-head title="Filmography" />
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            @foreach($person->moviesAsActor as $movie)
+                <x-movie-browse-card :movie="$movie" />
+            @endforeach
+        </div>
+    </section>
+@endif
 
 @endsection

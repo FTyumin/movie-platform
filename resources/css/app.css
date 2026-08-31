@@ -162,3 +162,12 @@
 [x-cloak] {
   display: none !important;
 }
+
+/* Browsers don't give <button> a pointer cursor by default — restore it
+   site-wide instead of adding cursor-pointer to every button. */
+button:not(:disabled),
+[type="button"]:not(:disabled),
+[type="submit"]:not(:disabled),
+[role="button"]:not(:disabled) {
+  cursor: pointer;
+}
