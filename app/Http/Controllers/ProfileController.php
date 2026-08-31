@@ -94,16 +94,28 @@ class ProfileController extends Controller
             abort(404);
         }
 
-        $watchList = $user->wantToWatch->take(4);
+        $watchList = $user->wantToWatch->take(6);
         $seen = $user->seenMovies->take(4);
         $favorites = $user->favorites->take(4);
 
-        $reviews = Review::where('user_id', $user->id)->limit(3)->get();
+        $reviews = Review::where('user_id', $user->id)->latest()->limit(3)->get();
         $review_count = Review::where('user_id', $user->id)->count();
         $average_review = round(Review::where('user_id', $user->id)->avg('rating'), 2) ?? 0;
 
-        $lists = $user->lists()->withCount('movies')->latest()->limit(5)->get();
+        $lists = $user->lists()
+            ->withCount('movies')
+            ->with(['movies' => fn ($query) => $query->limit(4)])
+            ->latest()
+            ->limit(5)
+            ->get();
 
-        return view('dashboard', compact('reviews', 'user', 'watchList', 'average_review', 'seen', 'favorites', 'lists'));
+        $monthStart = now()->startOfMonth();
+        $thisMonth = [
+            'watched' => $user->seenMovies()->where('created_at', '>=', $monthStart)->count(),
+            'reviews' => Review::where('user_id', $user->id)->where('created_at', '>=', $monthStart)->count(),
+            'followers' => $user->followers()->where('created_at', '>=', $monthStart)->count(),
+        ];
+
+        return view('dashboard', compact('reviews', 'user', 'watchList', 'average_review', 'review_count', 'seen', 'favorites', 'lists', 'thisMonth'));
     }
 }
