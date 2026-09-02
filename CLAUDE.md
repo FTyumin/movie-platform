@@ -71,6 +71,8 @@ See `IMPROVEMENT_PLAN.md` for the current list of known bugs and the recommendat
 
 **Movie import flow**: Admin submits `/load` form → `AdminController::loadMovies()` validates and dispatches `ImportMoviesJob` to the queue → job calls `ImportService::importTopMovies()` → iterates TMDB pages, creates `Movie`, `Person`, attaches genres via pivot. Import methods: `discover` (default, by vote average), `popular`, `top-rated`, `now-playing`.
 
+**Tailwind convention**: code like this: border-white/[0.09], can be written as border-white/9
+
 ### Data Model Relationships
 
 - `Movie` ↔ `Person` (many-to-many via `person_movie`, pivot has `role`: `'actor'` or `'director'`)

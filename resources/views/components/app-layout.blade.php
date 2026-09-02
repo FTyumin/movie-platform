@@ -5,9 +5,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
-  
+
   <title>Filmstack</title>
- 
+
    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=anton:400|fraunces:500,600,600i,700|inter:400,500,600,700|jetbrains-mono:400,500|jost:300,400,500,600,700,900,400i,500i|oswald:400,500,600,700" rel="stylesheet" />
@@ -17,9 +17,10 @@
 <body class="font-sans antialiased flex flex-col min-h-screen">
   @include('header')
 
-  {{-- Pages that run edge-to-edge (the homepage hero) opt out of the default
-       gutters with @section('main-class', ''). --}}
-  <main class="flex-1 bg-base-100 @yield('main-class', 'px-6 sm:px-4 py-8')">
+  {{-- The authenticated homepage hero runs edge-to-edge — this component
+       currently has no other consumer, so no opt-in/opt-out gutter
+       mechanism like layouts.app's @yield('main-class'). --}}
+  <main class="flex-1 bg-base-100">
     @if (session('success') || session('warning'))
       <div class="mx-auto w-full max-w-7xl px-6 pt-6">
         @if (session('success'))
@@ -35,11 +36,11 @@
       </div>
     @endif
 
-    @yield('content')
+    {{ $slot }}
   </main>
 
   @include('footer')
-  
+
     @stack('scripts')
 </body>
 </html>

@@ -3,12 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use App\Observers\ReviewObserver;
+use Database\Factories\ReviewFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
+#[UseFactory(ReviewFactory::class)]
 #[ObservedBy([ReviewObserver::class])]
 class Review extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'user_id',
         'movie_id',

@@ -1,164 +1,225 @@
 @extends('layouts.app')
 
-@section('title', 'Movies')
+@section('title', 'Browse films')
 
 @section('content')
-<div class="relative mx-6 lg:mx-16 py-10 mb-10">
-    <h1 class="text-3xl font-bold text-white">
-        Movies
-    </h1>
+@php
+    $statusLabels = ['favorite' => 'Favorites', 'want_to_watch' => 'Watchlist', 'seen' => 'Seen'];
+@endphp
 
-</div>
+<div class="mx-auto max-w-[100rem]" x-data="{ filtersOpen: false }" @keydown.escape.window="filtersOpen = false">
 
-  <!-- Movie Grid -->
- <div class="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8">
-  <aside class="h-full">
-      <div x-data="{ open: false }" @keydown.escape.window="open = false" class="relative">
+    <div class="grid grid-cols-1 items-start gap-10 lg:grid-cols-[1fr_280px]">
 
-      <div class="flex items-center justify-between mb-6">
+        <main class="min-w-0">
 
-      <!-- Mobile filter button -->
-      <button @click="open = true"
-          class="lg:hidden flex items-center gap-2 px-4 py-2
-                bg-blue-600 hover:bg-blue-700 text-white
-                rounded-xl transition"
-      >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M3 4h18M4 8h16M6 12h12M8 16h8" />
-          </svg>
-          Filters
-      </button>
+            {{-- Title + count, search, sort --}}
+            <div class="mb-6 flex flex-col gap-4">
+                <div class="flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                        <h1 class="font-display text-3xl font-semibold uppercase tracking-[0.02em] text-base-content">
+                            Browse films
+                        </h1>
+                        <p class="mt-1.5 text-sm text-base-content/55">
+                            {{ $movies->total() }} of {{ $totalMovies }} titles
+                        </p>
+                    </div>
 
-      <!-- Backdrop -->
-          <div x-show="open" x-transition.opacity @click="open = false"
-              class="fixed inset-0 bg-black/60 z-40 lg:hidden"
-          ></div>
+                    <div class="flex items-center gap-3">
+                        <button type="button" @click="filtersOpen = true"
+                                class="flex items-center gap-2 rounded-selector border border-white/[0.08] bg-base-200 px-4 py-2.5 font-display text-[0.75rem] font-medium uppercase tracking-[0.1em] text-base-content/80 lg:hidden">
+                            @svg('heroicon-o-adjustments-horizontal', 'h-4 w-4')
+                            Filters
+                            @if(count($chips))
+                                <span class="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold leading-none text-primary-content">{{ count($chips) }}</span>
+                            @endif
+                        </button>
 
-          <div x-show="open || window.innerWidth >= 1024"
-            x-transition:enter="transform transition ease-out duration-300"
-            x-transition:enter-start="-translate-x-full"
-            x-transition:enter-end="translate-x-0"
-            x-transition:leave="transform transition ease-in duration-200"
-            x-transition:leave-start="translate-x-0"
-            x-transition:leave-end="-translate-x-full"
-            class="fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
-                  w-[85%] max-w-sm lg:w-full
-                  bg-gray-900/95 backdrop-blur
-                  border-r border-gray-700
-                  p-6 overflow-y-auto
-                  lg:rounded-2xl lg:border lg:sticky lg:top-6">
-            
-            <div class="flex items-center justify-between mb-6 lg:hidden">
-                <h2 class="text-xl font-semibold text-white">Filters</h2>
-                <button @click="open = false" class="text-gray-400 hover:text-white text-2xl">
-                    ×
-                </button>
+                        <label class="flex items-center gap-2.5">
+                            <span class="hidden font-display text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-base-content/50 sm:inline">Sort</span>
+                            <select name="sort" form="browse-filters" onchange="this.form.requestSubmit()"
+                                    class="rounded-field border border-white/[0.08] bg-base-200 px-3 py-2 text-sm text-base-content focus:border-primary/40 focus:outline-none">
+                                <option value="rating" @selected($sort === 'rating')>Highest rated</option>
+                                <option value="year" @selected($sort === 'year')>Newest first</option>
+                                <option value="title" @selected($sort === 'title')>A–Z</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <div x-data class="flex w-full max-w-md items-center gap-2.5 rounded-selector border border-white/[0.08] bg-base-200 px-4 py-2.5 transition focus-within:border-primary/40">
+                    @svg('heroicon-o-magnifying-glass', 'h-4 w-4 flex-none text-base-content/40')
+                    <input type="search" name="q" form="browse-filters" value="{{ request('q') }}"
+                           placeholder="Search titles, directors, people" autocomplete="off"
+                           @input.debounce.500ms="$el.form.requestSubmit()"
+                           class="w-full bg-transparent text-sm text-base-content placeholder:text-base-content/45 focus:outline-none">
+                </div>
             </div>
-          <form method="GET" action="{{ route('movies.index') }}" class="space-y-6">
 
-      <!-- Genres -->
-      <div>
-          <p class="text-sm font-medium text-gray-300 mb-3">Genres</p>
-          <div class="grid grid-cols-2 gap-2">
-              @foreach($genres as $genre)
-                  <label class="flex items-center gap-2 text-sm text-gray-200">
-                      <input type="checkbox" name="genres[]" value="{{ $genre->id }}"
-                          class="rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500"
-                          {{ in_array($genre->id, request('genres', [])) ? 'checked' : '' }}
-                      >
-                      {{ $genre->name }}
-                  </label>
-              @endforeach
-          </div>
-      </div>
+            {{-- Active filter chips --}}
+            @if(count($chips))
+                <div class="mb-6 flex flex-wrap items-center gap-2">
+                    @foreach($chips as $chip)
+                        <a href="{{ $chip['url'] }}"
+                           class="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 font-sans text-xs font-medium text-primary transition hover:border-primary/50">
+                            {{ $chip['label'] }}
+                            <span class="text-sm leading-none opacity-70">&times;</span>
+                        </a>
+                    @endforeach
+                    <a href="{{ route('movies.index') }}" class="px-1 py-1.5 text-xs font-medium text-base-content/45 underline-offset-2 hover:text-base-content/70 hover:underline">
+                        Clear all
+                    </a>
+                </div>
+            @endif
 
-      <!-- Rating -->
-      <div>
-          <label class="block text-sm text-gray-300 mb-2">Min Rating</label>
-          <select name="min_rating"
-              class="w-full rounded-lg bg-gray-800 border-gray-700 text-white focus:ring-blue-500">
-              <option value="">Any</option>
-              @foreach([9,8,7,6,5] as $r)
-                  <option value="{{ $r }}" {{ request('min_rating') == $r ? 'selected' : '' }}>
-                      {{ $r }}+ ⭐
-                  </option>
-              @endforeach
-          </select>
-      </div>
+            @if($movies->isEmpty())
+                <div class="rounded-box border border-dashed border-white/[0.12] px-6 py-16 text-center">
+                    <p class="font-display text-lg font-medium uppercase tracking-[0.02em] text-base-content/85">No films match</p>
+                    <p class="mx-auto mt-1.5 max-w-sm text-sm text-base-content/55">Try widening the year range or clearing a genre.</p>
+                    <a href="{{ route('movies.index') }}"
+                       class="mt-5 inline-flex h-10 items-center rounded-selector bg-primary px-5 font-display text-[0.75rem] font-bold uppercase tracking-[0.08em] text-primary-content transition hover:brightness-110">
+                        Reset filters
+                    </a>
+                </div>
+            @else
+                <div class="grid grid-cols-2 gap-5 sm:grid-cols-3 xl:grid-cols-4">
+                    @foreach($movies as $movie)
+                        <x-movie-browse-card :movie="$movie" :saved="$watchlistIds->contains($movie->id)" />
+                    @endforeach
+                </div>
 
-      <!-- Year -->
-      <div>
-          <label class="block text-sm text-gray-300 mb-2">Year</label>
-          <select name="decade"
-              class="w-full rounded-lg bg-gray-800 border-gray-700 text-white focus:ring-blue-500">
-              <option value="">All</option>
-              @foreach($decades as $d)
-                  <option value="{{ $d }}" {{ request('decade') == (string)$d ? 'selected' : '' }}>
-                    {{ $d }}s
-                </option>
-              @endforeach
-                 
-          </select>
-      </div>
+                @if($movies->lastPage() > 1)
+                    <div class="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-white/[0.07] pt-6">
+                        <span class="text-xs text-base-content/50">
+                            {{ $movies->firstItem() }}–{{ $movies->lastItem() }} of {{ $movies->total() }}
+                        </span>
 
-      <!-- Sort -->
-      <div>
-          <label class="block text-sm text-gray-300 mb-2">Sort By</label>
-          <select name="sort"
-              class="w-full rounded-lg bg-gray-800 border-gray-700 text-white focus:ring-blue-500">
-              <option value="year" {{ request('sort') == 'year' ? 'selected' : '' }}>Newest</option>
-              <option value="name" {{ request('sort') == 'name' ? 'selected' : '' }}>Name (A–Z)</option>
-              <option value="rating" {{ request('sort') == 'rating' ? 'selected' : '' }}>TMDB Rating</option>
-          </select>
-      </div>
+                        <div class="flex items-center gap-1.5">
+                            @if($movies->onFirstPage())
+                                <span class="flex h-8 w-8 items-center justify-center rounded-field border border-white/[0.06] text-base-content/25">
+                                    @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
+                                </span>
+                            @else
+                                <a href="{{ $movies->previousPageUrl() }}" class="flex h-8 w-8 items-center justify-center rounded-field border border-white/[0.08] text-base-content/70 transition hover:border-primary/40">
+                                    @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
+                                </a>
+                            @endif
 
-      <!-- Director -->
-      <div x-data="{ q: ''}">
-          <label class="block text-sm text-gray-300 mb-2">Director</label>
-          <input type="text" x-model="q" placeholder="Search directors"
-          class="w-full mb-3 rounded-lg bg-gray-800 border border-gray-700 text-white px-3 py-2 focus:ring-blue-500">
-          <select name="directors[]" multiple
-              class="w-full h-40 rounded-lg bg-gray-800 border-gray-700 text-white focus:ring-blue-500">
-              @foreach($directors as $director)
-                  <option value="{{ $director->id }}"
-                    x-show="q === '' || ('{{ $director->first_name }} {{ $director->last_name }}').toLowerCase().includes(q.toLowerCase())"
-                    {{ collect(request('directors'))->contains($director->id) ? 'selected' : '' }}>
-                    {{ $director->first_name }} {{ $director->last_name }}
-                  </option>
-              @endforeach
-          </select>
-      </div>
+                            @foreach ($movies->getUrlRange(max(1, $movies->currentPage() - 2), min($movies->lastPage(), $movies->currentPage() + 2)) as $page => $url)
+                                <a href="{{ $url }}"
+                                   @class([
+                                       'flex h-8 min-w-[2rem] items-center justify-center rounded-field px-2 font-display text-[0.75rem] font-semibold transition',
+                                       'bg-primary text-primary-content' => $page === $movies->currentPage(),
+                                       'border border-white/[0.08] text-base-content/70 hover:border-primary/40' => $page !== $movies->currentPage(),
+                                   ])>{{ $page }}</a>
+                            @endforeach
 
-      <!-- Buttons -->
-      <div class="flex gap-3 pt-4">
-          <button type="submit"
-              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl">
-              Apply
-          </button>
+                            @if($movies->hasMorePages())
+                                <a href="{{ $movies->nextPageUrl() }}" class="flex h-8 w-8 items-center justify-center rounded-field border border-white/[0.08] text-base-content/70 transition hover:border-primary/40">
+                                    @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
+                                </a>
+                            @else
+                                <span class="flex h-8 w-8 items-center justify-center rounded-field border border-white/[0.06] text-base-content/25">
+                                    @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
+                                </span>
+                            @endif
+                        </div>
 
-          <a href="{{ route('movies.index') }}"
-              class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-xl text-center">
-              Reset
-          </a>
-      </div>
+                        <label class="flex items-center gap-2.5">
+                            <span class="font-display text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-base-content/50">Per page</span>
+                            <select name="per_page" form="browse-filters" onchange="this.form.requestSubmit()"
+                                    class="rounded-field border border-white/[0.08] bg-base-200 px-3 py-2 text-sm text-base-content focus:border-primary/40 focus:outline-none">
+                                <option value="8" @selected($perPage === 8)>8</option>
+                                <option value="12" @selected($perPage === 12)>12</option>
+                                <option value="16" @selected($perPage === 16)>16</option>
+                            </select>
+                        </label>
+                    </div>
+                @endif
+            @endif
+        </main>
 
-      </form>
+        {{-- Mobile filter backdrop --}}
+        <div x-show="filtersOpen" x-transition.opacity @click="filtersOpen = false" x-cloak
+             class="fixed inset-0 z-40 bg-black/70 lg:hidden"></div>
 
-    </aside>
-    <div>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 mt-3">
-        @foreach($movies as $movie)
-            <x-movie-card :movie="$movie" />
-        @endforeach
+        <aside
+            :class="filtersOpen ? 'translate-x-0' : 'translate-x-full'"
+            class="fixed inset-y-0 right-0 z-50 w-[86%] max-w-xs transform overflow-y-auto border-l border-white/[0.08] bg-base-200 p-6 transition-transform duration-300 ease-out lg:sticky lg:inset-auto lg:top-24 lg:z-auto lg:max-h-[calc(100vh-7rem)] lg:w-auto lg:max-w-none lg:translate-x-0 lg:rounded-box lg:border lg:p-6 lg:transition-none">
+
+            <form id="browse-filters" method="GET" action="{{ route('movies.index') }}"
+                  x-data="{ minYear: {{ $minYear }}, minRating: {{ $minRating }} }" class="flex flex-col gap-6">
+
+                <div class="flex items-center justify-between gap-3 lg:hidden">
+                    <span class="font-display text-sm font-semibold uppercase tracking-[0.1em] text-base-content">Filters</span>
+                    <button type="button" @click="filtersOpen = false" class="text-2xl leading-none text-base-content/50 hover:text-base-content">&times;</button>
+                </div>
+
+                <div class="hidden items-center justify-between lg:flex">
+                    <span class="font-display text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-base-content">Filters</span>
+                    <span class="font-display text-[0.7rem] font-semibold text-primary">{{ count($chips) ? count($chips) . ' active' : 'None' }}</span>
+                </div>
+
+                <div class="flex flex-col gap-2.5">
+                    <span class="font-display text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-base-content/55">Genre</span>
+                    <div class="flex flex-wrap gap-1.5">
+                        @foreach($genres as $genre)
+                            @php $checked = in_array($genre->id, request('genres', [])); @endphp
+                            <label @class([
+                                'cursor-pointer select-none rounded-full border px-3 py-1.5 font-sans text-xs font-medium transition-colors',
+                                'border-primary/50 bg-primary/15 text-primary' => $checked,
+                                'border-white/[0.08] bg-base-100 text-base-content/65 hover:border-white/20' => ! $checked,
+                            ])>
+                                <input type="checkbox" name="genres[]" value="{{ $genre->id }}" onchange="this.form.requestSubmit()"
+                                       class="sr-only" {{ $checked ? 'checked' : '' }}>
+                                {{ $genre->name }}
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="h-px bg-white/[0.07]"></div>
+
+                <div class="flex flex-col gap-2.5">
+                    <div class="flex items-baseline justify-between gap-2">
+                        <span class="font-display text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-base-content/55">Released after</span>
+                        <span class="font-display text-sm font-semibold text-base-content" x-text="minYear"></span>
+                    </div>
+                    <input type="range" name="min_year" min="1950" max="2025" step="1"
+                           x-model.number="minYear" @change="$el.form.requestSubmit()" class="w-full cursor-pointer accent-primary">
+                    <div class="flex justify-between text-[11px] text-base-content/40">
+                        <span>1950</span><span>2025</span>
+                    </div>
+                </div>
+
+                <div class="h-px bg-white/[0.07]"></div>
+
+                <div class="flex flex-col gap-2.5">
+                    <div class="flex items-baseline justify-between gap-2">
+                        <span class="font-display text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-base-content/55">Min rating</span>
+                        <span class="font-display text-sm font-semibold text-base-content" x-text="minRating > 0 ? minRating.toFixed(1) : 'Any'"></span>
+                    </div>
+                    <input type="range" name="min_rating" min="0" max="9" step="0.5"
+                           x-model.number="minRating" @change="$el.form.requestSubmit()" class="w-full cursor-pointer accent-primary">
+                </div>
+
+                @auth
+                    <div class="h-px bg-white/[0.07]"></div>
+
+                    <div class="flex flex-col gap-2.5">
+                        <span class="font-display text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-base-content/55">My lists</span>
+                        @foreach($statusLabels as $key => $label)
+                            <label class="flex cursor-pointer select-none items-center gap-2.5">
+                                <input type="checkbox" name="status[]" value="{{ $key }}" onchange="this.form.requestSubmit()"
+                                       class="h-4 w-4 flex-none cursor-pointer accent-primary" {{ in_array($key, $statuses) ? 'checked' : '' }}>
+                                <span class="flex-1 text-[13.5px] text-base-content/75">{{ $label }}</span>
+                                <span class="flex-none text-xs text-base-content/40">{{ $statusCounts[$key] }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                @endauth
+            </form>
+        </aside>
     </div>
-
-    <div class="mt-6">
-      {{ $movies->links() }}
-    </div>
-    
-    </div>
-   
 </div>
-
 @endsection

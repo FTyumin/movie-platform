@@ -4,392 +4,300 @@
 
 @section('content')
 
-<section>
-<div class="min-h-screen bg-black text-white">
-    <main class="relative z-10">
-        <div class="py-12 px-6 lg:px-28">
-            <div class="mb-8">
-                <h1 class="text-4xl font-bold mb-2">
-                    Welcome back, <span class="text-blue-400">{{ $user->name }}</span>!
-                </h1>
+@php
+    $initials = collect(preg_split('/\s+/', trim($user->name)))
+        ->map(fn ($part) => mb_strtoupper(mb_substr($part, 0, 1)))
+        ->take(2)
+        ->join('');
 
-                <!-- Followers / Following -->
-                <p class="text-lg text-gray-300 mb-2 flex items-center gap-4">
-                    <x-user-list-modal
-                        title="Followers"
-                        :users="$user->followers->map->follower->filter()"
-                        empty-message="No followers yet."
-                    >
-                        <x-slot name="trigger">
-                            <span class="flex items-center gap-1 cursor-pointer hover:text-white transition">
-                                <x-heroicon-o-user-group class="w-5 h-5 text-gray-400" />
-                                {{ count($user->followers) }} Followers
-                            </span>
-                        </x-slot>
-                    </x-user-list-modal>
+    $stats = [
+        ['label' => 'Watchlist', 'value' => $user->wantToWatch->count(), 'icon' => 'heroicon-o-bookmark'],
+        ['label' => 'Watched', 'value' => $user->seenMovies->count(), 'icon' => 'heroicon-o-check-circle'],
+        ['label' => 'Reviews', 'value' => $review_count, 'icon' => 'heroicon-o-pencil-square'],
+        ['label' => 'Avg Rating', 'value' => $average_review, 'icon' => 'heroicon-s-star'],
+    ];
 
-                    <x-user-list-modal
-                        title="Following"
-                        :users="$user->followees->map->followee->filter()"
-                        empty-message="Not following anyone yet."
-                    >
-                        <x-slot name="trigger">
-                            <span class="flex items-center gap-1 cursor-pointer hover:text-white transition">
-                                <x-heroicon-o-user-plus class="w-5 h-5 text-gray-400" />
-                                {{ count($user->followees) }} Following
-                            </span>
-                        </x-slot>
-                    </x-user-list-modal>
+    $collectionTabs = [
+        'profile' => 'Profile',
+        'watchlist' => 'Watchlist',
+        'lists' => 'Your Lists',
+    ];
+@endphp
 
-                </p>
+<div class="mx-auto max-w-6xl px-2 pb-20" x-data="{ tab: 'profile' }">
 
-                <p class="text-xl text-gray-400">
-                    Here's what's happening with your movie collection
-                </p>
+    {{-- Welcome hero --}}
+    <div class="flex items-center gap-5 pt-10 pb-2">
+        <div class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-primary bg-base-200">
+            @if($user->image)
+                <img src="{{ asset('storage/' . $user->image) }}" alt="{{ $user->name }}" class="h-full w-full object-cover">
+            @else
+                <span class="font-display text-xl font-semibold tracking-[0.02em] text-primary">{{ $initials }}</span>
+            @endif
+        </div>
+
+        <div class="min-w-0">
+            <h1 class="font-display text-2xl font-semibold uppercase tracking-[0.02em] text-base-content sm:text-[1.75rem]">
+                Welcome back, <span class="text-primary">{{ $user->name }}</span>
+            </h1>
+
+            <div class="mt-1.5 flex items-center gap-3">
+                <x-user-list-modal title="Followers" :users="$user->followers->map->follower->filter()" empty-message="No followers yet.">
+                    <x-slot name="trigger">
+                        <span class="flex items-center gap-1.5 text-sm">
+                            <span class="font-display font-semibold text-base-content">{{ $user->followers->count() }}</span>
+                            <span class="text-base-content/50">Followers</span>
+                        </span>
+                    </x-slot>
+                </x-user-list-modal>
+
+                <span class="h-0.75 w-0.75 rounded-full bg-base-content/25"></span>
+
+                <x-user-list-modal title="Following" :users="$user->followees->map->followee->filter()" empty-message="Not following anyone yet.">
+                    <x-slot name="trigger">
+                        <span class="flex items-center gap-1.5 text-sm">
+                            <span class="font-display font-semibold text-base-content">{{ $user->followees->count() }}</span>
+                            <span class="text-base-content/50">Following</span>
+                        </span>
+                    </x-slot>
+                </x-user-list-modal>
+            </div>
+        </div>
+    </div>
+
+    {{-- Stats --}}
+    <div class="grid grid-cols-2 gap-4 py-8 sm:grid-cols-4">
+        @foreach($stats as $stat)
+            <div class="flex items-center justify-between rounded-box border border-white/6 bg-base-200 p-5 transition-colors hover:border-primary/30">
+                <div>
+                    <p class="font-display text-[0.68rem] font-medium uppercase tracking-[0.14em] text-base-content/50">{{ $stat['label'] }}</p>
+                    <p class="mt-1.5 font-display text-2xl font-semibold text-base-content">{{ $stat['value'] }}</p>
+                </div>
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-field bg-primary/10">
+                    @svg($stat['icon'], 'h-5 w-5 text-primary')
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+    {{-- Collection tabs --}}
+    <div class="flex items-center gap-1 overflow-x-auto border-b border-white/[0.07]">
+        @foreach($collectionTabs as $key => $label)
+            <button type="button" @click="tab = '{{ $key }}'"
+                class="shrink-0 border-b-2 px-4 py-3 font-display text-[0.75rem] font-medium uppercase tracking-widest transition-colors"
+                :class="tab === '{{ $key }}' ? 'border-primary text-base-content' : 'border-transparent text-base-content/50 hover:text-base-content'">
+                {{ $label }}
+            </button>
+        @endforeach
+        <div class="flex-1"></div>
+    </div>
+
+    {{-- Watchlist tab --}}
+    <div x-show="tab === 'watchlist'" x-cloak class="pt-8">
+        <x-section-head title="Watchlist" :href="route('profile.watchlist', $user)" />
+
+        @if($watchList->isEmpty())
+            <p class="text-sm text-base-content/55">No titles on the watchlist yet.</p>
+        @else
+            <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+                @foreach($watchList as $entry)
+                    <x-movie-browse-card :movie="$entry->movie" :saved="true" />
+                @endforeach
+            </div>
+        @endif
+    </div>
+
+    {{-- Your Lists tab --}}
+    <div x-show="tab === 'lists'" x-cloak class="pt-8">
+        <x-section-head title="Your Lists" :href="route('lists.index')" />
+
+        @if($lists->isEmpty())
+            <p class="text-sm text-base-content/55">You haven't created any lists yet.</p>
+        @else
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                @foreach($lists as $list)
+                    <a href="{{ route('lists.show', $list) }}"
+                       class="rounded-box border border-white/6 bg-base-200 p-5 transition-colors hover:border-primary/30">
+                        <div class="mb-3 flex items-center justify-between gap-3">
+                            <p class="font-display text-sm font-medium uppercase tracking-[0.04em] text-base-content">{{ $list->name }}</p>
+                            <span class="shrink-0 text-xs text-base-content/45">{{ $list->movies_count }} {{ Str::plural('film', $list->movies_count) }}</span>
+                        </div>
+                        <div class="flex gap-1.5">
+                            @forelse($list->movies as $movie)
+                                <div class="h-13.5 w-9 overflow-hidden rounded-field border border-white/8 bg-base-300">
+                                    <img src="https://image.tmdb.org/t/p/w500/{{ $movie->poster_url }}" alt="{{ $movie->name }}" class="h-full w-full object-cover">
+                                </div>
+                            @empty
+                                <p class="text-xs text-base-content/40">No films yet.</p>
+                            @endforelse
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        @endif
+    </div>
+
+    {{-- Profile tab --}}
+    <div x-show="tab === 'profile'" x-cloak class="grid grid-cols-1 gap-6 pt-8 lg:grid-cols-[1fr_320px] lg:items-start">
+        <div class="flex flex-col gap-10">
+
+            {{-- Recent Reviews --}}
+            <div>
+                <x-section-head title="Recent Reviews" :href="route('profile.reviews', $user)" />
+
+                @if($reviews->isEmpty())
+                    <p class="text-sm text-base-content/55">No reviews yet.</p>
+                @else
+                    <div class="flex flex-col gap-3">
+                        @foreach($reviews as $review)
+                            <a href="{{ route('reviews.show', $review) }}"
+                               class="group grid grid-cols-[44px_1fr] gap-3 rounded-box border border-white/6 bg-base-200 p-4 transition-colors hover:border-primary/30">
+                                <div class="aspect-2/3 overflow-hidden rounded-field bg-base-300">
+                                    <img src="https://image.tmdb.org/t/p/w500/{{ $review->movie->poster_url }}"
+                                         alt="{{ $review->movie->name }}"
+                                         class="h-full w-full object-cover">
+                                </div>
+                                <div class="min-w-0">
+                                    <h4 class="truncate font-display text-[0.8rem] font-medium uppercase tracking-[0.03em] text-base-content group-hover:text-primary">
+                                        {{ $review->movie->name }}
+                                    </h4>
+                                    <div class="mt-1 flex items-center gap-0.5">
+                                        @for($j = 0; $j < 5; $j++)
+                                            @svg('heroicon-s-star', 'h-2.5 w-2.5 ' . ($j < round($review->rating) ? 'text-primary' : 'text-base-content/20'))
+                                        @endfor
+                                    </div>
+                                    <p class="mt-1.5 line-clamp-2 text-[0.8rem] leading-relaxed text-base-content/55">{{ $review->description }}</p>
+                                    <p class="mt-1.5 text-[0.7rem] text-base-content/35">{{ $review->created_at->diffForHumans() }}</p>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                <!-- Watchlist Count -->
-                <div class="bg-gray-800/50 glass border border-gray-700 rounded-xl p-6 hover:border-gray-600 transition-colors">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-400">Watchlist</p>
-                            <p class="text-3xl font-bold text-blue-400">{{ count(auth()->user()->wantToWatch) }} </p>
-                        </div>
-                        <div class="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center">
-                            @svg('heroicon-o-bookmark', 'w-6 h-6 text-blue-400')
-                        </div>
-                    </div>
-                </div>
+            {{-- Recently Watched --}}
+            <div>
+                <x-section-head title="Recently Watched" :href="route('profile.seen', $user)" />
 
-                <!-- Watched Movies -->
-                <div class="bg-gray-800/50 glass border border-gray-700 rounded-xl p-6 hover:border-gray-600 transition-colors">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-400">Watched</p>
-                            <p class="text-3xl font-bold text-green-400">{{ count(auth()->user()->seenMovies) }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-green-600/20 rounded-xl flex items-center justify-center">
-                            @svg('heroicon-o-check-circle', 'w-6 h-6 text-green-400')
-                        </div>
+                @if($seen->isEmpty())
+                    <p class="text-sm text-base-content/55">No watched films yet.</p>
+                @else
+                    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                        @foreach($seen as $entry)
+                            <x-movie-browse-card :movie="$entry->movie" />
+                        @endforeach
                     </div>
-                </div>
+                @endif
+            </div>
 
-                <!-- Reviews Written -->
-                <div class="bg-gray-800/50 glass border border-gray-700 rounded-xl p-6 hover:border-gray-600 transition-colors">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-400">Reviews</p>
-                            <p class="text-3xl font-bold text-purple-400">{{ count($reviews) }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-purple-600/20 rounded-xl flex items-center justify-center">
-                            @svg('heroicon-o-pencil-square', 'w-6 h-6 text-purple-400')
-                        </div>
-                    </div>
-                </div>
+            {{-- Favorites --}}
+            <div>
+                <x-section-head title="Favorites" :href="route('profile.favorites', $user)" />
 
-                <!-- Average Rating Given -->
-                <div class="bg-gray-800/50 glass border border-gray-700 rounded-xl p-6 hover:border-gray-600 transition-colors">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-400">Average Rating</p>
-                            <p class="text-3xl font-bold text-yellow-400">{{ $average_review }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-yellow-600/20 rounded-xl flex items-center justify-center">
-                            @svg('heroicon-s-star', 'w-6 h-6 text-yellow-400')
-                        </div>
+                @if($favorites->isEmpty())
+                    <p class="text-sm text-base-content/55">No favorites yet.</p>
+                @else
+                    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                        @foreach($favorites as $fav)
+                            <x-movie-card :movie="$fav->markable" />
+                        @endforeach
                     </div>
-                </div>
+                @endif
             </div>
         </div>
 
-        <!-- Main Content Grid -->
-        <div class="px-6 lg:px-28 pb-12">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
-                <!-- Left Column: Watchlist -->
-                <div class="lg:col-span-2">
-                    <div class="bg-gray-800/50 glass border border-gray-700 rounded-2xl p-8">
-                        <div class="flex items-center justify-between mb-6">
-                            <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-                                @svg('heroicon-o-bookmark', 'w-6 h-6 text-blue-400')
-                                My Watchlist
-                            </h2>
+        {{-- Sidebar --}}
+        <div class="flex flex-col gap-5 lg:sticky lg:top-24">
 
-                            <a href="{{ route('profile.watchlist', $user) }}" class="text-green-400 hover:text-green-300 text-sm font-medium transition-colors">
-                                View All →
-                            </a>
-                            
+            {{-- Quick Actions --}}
+            <div class="rounded-box border border-white/6 bg-base-200 p-5">
+                <h3 class="font-display text-sm font-medium uppercase tracking-[0.14em] text-base-content">Quick Actions</h3>
+                <div class="mt-3 flex flex-col gap-1">
+                    <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 rounded-field px-3 py-2.5 transition-colors hover:bg-base-300">
+                        <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-field bg-primary/10">
+                            @svg('heroicon-o-pencil-square', 'h-3.5 w-3.5 text-primary')
                         </div>
+                        <span class="text-sm text-base-content/80">Edit profile</span>
+                    </a>
 
-                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                            @foreach($watchList as $movie)
-                            <a href="{{ route('movies.show', $movie->movie) }}" class="group">
-                                <div class="group relative">
-                                <div class="aspect-[2/3] bg-gray-700 rounded-lg overflow-hidden relative">
-                                <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                                    src="https://image.tmdb.org/t/p/w500/{{ $movie->movie->poster_url }}"  
-                                    alt="Movie poster" />
-                            
-                                <!-- Watched Badge -->
-                                <div class="absolute top-2 right-2 bg-green-600 rounded-full p-1">
-                                    @svg('heroicon-s-check', 'w-3 h-3 text-white')
-                                </div>
-                            
-                            </div>
-                            
-                            <h3 class="mt-2 text-sm font-medium text-white line-clamp-2">
-                                {{ $movie->movie->name }}
-                            </h3>
-                            <p class="text-xs text-gray-400">Added {{$movie->created_at->diffForHumans()}}</p>
-                        
-                            </div>
-                            @endforeach
+                    <a href="/suggestion" class="flex items-center gap-3 rounded-field px-3 py-2.5 transition-colors hover:bg-base-300">
+                        <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-field bg-primary/10">
+                            @svg('heroicon-o-paper-airplane', 'h-3.5 w-3.5 text-primary')
+                        </div>
+                        <span class="text-sm text-base-content/80">Send movie suggestion</span>
+                    </a>
 
+                    @if($user->is_admin)
+                        <a href="/admin" class="flex items-center gap-3 rounded-field px-3 py-2.5 transition-colors hover:bg-base-300">
+                            <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-field bg-primary/10">
+                                @svg('heroicon-o-shield-check', 'h-3.5 w-3.5 text-primary')
+                            </div>
+                            <span class="text-sm text-base-content/80">Go to admin dashboard</span>
                         </a>
-                        </div>
-                    </div>
-
-                    <div class="bg-gray-800/50 glass border border-gray-700 rounded-2xl p-8 mt-8">
-                        <div class="flex items-center justify-between mb-6">
-                            <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-                                @svg('heroicon-o-heart', 'w-6 h-6 text-red-400')
-                                Favorites
-                            </h2>
-                            <a href="{{ route('profile.favorites', $user) }}" class="text-green-400 hover:text-green-300 text-sm font-medium transition-colors">
-                                View All →
-                            </a>
-                        </div>
-
-                        @if($favorites->isEmpty())
-                            <p class="text-sm text-gray-400">No favorites yet.</p>
-                        @else
-                            
-                            
-                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                @foreach($favorites as $movie)
-                                    <a href="{{ route('movies.show', $movie->movie) }}" class="group">
-                                        <div class="aspect-[2/3] bg-gray-700 rounded-lg overflow-hidden">
-                                            <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                                 src="https://image.tmdb.org/t/p/w500/{{ $movie->movie->poster_url }}"
-                                                 alt="Movie poster" />
-                                        </div>
-                                        <h3 class="mt-2 text-sm font-medium text-white line-clamp-2">
-                                            {{ $movie->movie->name }}
-                                        </h3>
-                                    </a>
-                                @endforeach
-                            </div>
-                            
-                        @endif
-                    </div>
-
-                    <div class="bg-gray-800/50 glass border border-gray-700 rounded-2xl p-8 mt-8">
-                        <div class="flex items-center justify-between mb-6">
-                            <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-                                @svg('heroicon-o-list-bullet', 'w-6 h-6 text-green-400')
-                                Your Lists
-                            </h2>
-                            <a href="{{ route('lists.index') }}" class="text-green-400 hover:text-green-300 text-sm font-medium transition-colors">
-                                View All →
-                            </a>
-                        </div>
-
-                        @if($lists->isEmpty())
-                            <p class="text-sm text-gray-400">You haven't created any lists yet.</p>
-                        @else
-                            <div class="space-y-3">
-                                @foreach($lists as $list)
-                                    <a href="{{ route('lists.show', $list) }}" class="flex items-center justify-between rounded-lg border border-gray-700 px-4 py-3 hover:border-gray-600 transition-colors">
-                                        <span class="text-white font-medium">{{ $list->name }}</span>
-                                        <span class="text-xs text-gray-400">{{ $list->movies_count }} {{ Str::plural('movie', $list->movies_count) }}</span>
-                                    </a>
-                                @endforeach
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- Right Column: Recent Reviews -->
-                <div>
-                    <div class="bg-gray-800/50 glass border border-gray-700 rounded-2xl p-8 mb-8">
-                        <div class="flex items-center justify-between mb-6">
-                            <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-                                @svg('heroicon-o-pencil-square', 'w-6 h-6 text-purple-400')
-                                Recent Reviews
-                            </h2>
-                        </div>
-
-                        <div class="space-y-4 flex flex-col gap-4">
-                            @foreach($reviews as $review)
-                            <a href="{{ route('reviews.show', $review) }}">
-                                <div class="border border-gray-700 rounded-lg p-4 hover:border-gray-600 transition-colors">
-                                    <div class="flex items-start gap-3">
-                                        <img class="w-12 h-16 object-cover rounded" 
-                                            src="https://image.tmdb.org/t/p/w500/{{ $review->movie->poster_url }}"
-                                            alt="Movie poster" />
-                                        <div class="flex-1">
-                                            <h4 class="font-semibold text-white mb-1">
-                                                {{ $review->movie->name }}
-                                            </h4>
-                                            
-                                            <!-- Star Rating -->
-                                            <div class="flex items-center gap-1 mb-2">
-                                                @for ($j = 0; $j < $review->rating; $j++)
-                                                    @svg('heroicon-s-star', 'w-4 h-4 text-yellow-400')
-                                                @endfor
-
-                                                @for($j = $review->rating; $j < 5; $j++)
-                                                    @svg('heroicon-s-star', 'w-4 h-4 text-gray-500')
-                                                @endfor
-                                                <span class="text-sm text-gray-400 ml-1">{{ $review->rating }}</span>
-                                            </div>
-                                            
-                                            <time class="text-sm text-gray-400">{{ $review->created_at->diffForHumans() }}</time>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <!-- Quick Actions -->
-                    <div class="bg-gray-800/50 glass border border-gray-700 rounded-2xl p-6">
-                        <h3 class="text-lg font-bold text-white mb-4">Quick Actions</h3>
-                        <div class="space-y-3">
-                            
-                            <!-- Profile edit -->
-                            <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                                <div class="w-8 h-8 bg-purple-600/20 rounded-lg flex items-center justify-center">
-                                    @svg('heroicon-o-pencil-square', 'w-4 h-4 text-purple-400')
-                                </div>
-                                <span class="text-sm font-medium">Edit profile</span>
-                            </a>
-                            
-                            <!-- Send suggestion link -->
-                            <a href="/suggestion" class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                                <div class="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
-                                    @svg('heroicon-o-paper-airplane', 'w-4 h-4 text-blue-400')
-                                </div>
-                                <span class="text-sm font-medium">Send movie suggestion</span>
-                            </a>
-
-                            <!-- Change favorite genres
-                            <a href="/quiz" class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                                <div class="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
-                                    @svg('heroicon-o-heart', 'w-4 h-4 text-blue-400')
-                                </div>
-                                <span class="text-sm font-medium">Select favorite genres</span>
-                            </a> -->
-
-                            @if(auth()->user()->is_admin)
-                                <a href="/admin" class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                                    <div class="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                                        @svg('heroicon-o-shield-check', 'w-5 h-5 text-yellow-400')
-                                    </div>
-                                    <span class="text-sm font-medium">Go to admin dashboard</span>
-                                </a>
-                            @endif
-                            
-                            <!-- Logout -->
-                            <form method="POST" action="{{ route('logout') }}" class="w-full"> 
-                                @csrf                               
-                                <button type="submit" class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors w-full">
-                                    <div class="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center">
-                                        @svg('heroicon-o-arrow-right-on-rectangle', 'w-4 h-4 text-green-400')
-                                    </div>   
-                                    <span class="text-sm font-medium">Log Out</span>     
-                                </button>     
-                            </form>
-
-                            <a class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                                <x-confirm-modal title="Delete account?" message="Your account and all of its data will be deleted. This action cannot be undone."
-                                    :action="route('profile.destroy')" method="DELETE">
-                                    <x-slot name="trigger" class="w-max h-max">
-                                        <button  class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-colors w-full">
-                                            @svg('monoicon-delete', 'h-4 text-red-400')
-                                            <span class="text-sm font-medium">Delete Account</span>     
-                                        </button>     
-                                    </x-slot>
-                                </x-confirm-modal>
-
-                            </a>
-                                
-                        </div>
-                    </div>
-
-                        <!-- Notifications -->
-                    @if(auth()->user()->notifications->isNotEmpty())
-                    <div class="bg-gray-800/50 glass border border-gray-700 rounded-2xl p-6 mt-4">
-                        <h3 class="text-lg font-bold text-white mb-4">Notifications</h3>
-                        <div class="space-y-3">
-                            @foreach(auth()->user()->notifications as $notification)
-                                <div class="p-4 bg-gray-800 rounded">
-                                    <p class="text-white">
-                                        {{ $notification->data['message'] }}
-                                    </p>
-                                    <span class="text-sm text-gray-400">
-                                        {{ $notification->created_at->diffForHumans() }}
-                                    </span>
-                                </div>
-                            @endforeach
-                            
-                        </div>
-                    </div>
                     @endif
 
-                </div>
-            </div>
-        </div>
-
-        <!-- Recently Watched Movies -->
-        <div class="px-6 lg:px-28 pb-12">
-            <div class="bg-gray-800/50 glass border border-gray-700 rounded-2xl p-8">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-                        @svg('heroicon-o-check-circle', 'w-6 h-6 text-green-400')
-                        Recently Watched
-                    </h2>
-
-                    <a href="{{ route('profile.seen', $user) }}" class="text-green-400 hover:text-green-300 text-sm font-medium transition-colors">
-                        View All →
-                    </a>
-                    
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
-                    @forelse($seen as $movie)
-                    <a href="{{ route('movies.show', $movie->movie->slug) }}">
-                        <div class="group relative">
-                            <div class="aspect-[2/3] bg-gray-700 rounded-lg overflow-hidden relative">
-                                <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                                    src="https://image.tmdb.org/t/p/w500/{{ $movie->movie->poster_url }}" 
-                                    alt="Movie poster" />
-                                
-                                <!-- Watched Badge -->
-                                <div class="absolute top-2 right-2 bg-green-600 rounded-full p-1">
-                                    @svg('heroicon-s-check', 'w-3 h-3 text-white')
-                                </div>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="flex w-full items-center gap-3 rounded-field px-3 py-2.5 text-left transition-colors hover:bg-base-300">
+                            <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-field bg-primary/10">
+                                @svg('heroicon-o-arrow-right-on-rectangle', 'h-3.5 w-3.5 text-primary')
                             </div>
-                            
-                            <h3 class="mt-2 text-sm font-medium line-clamp-2">
-                                {{ $movie->movie->name }}
-                            </h3>
-                            <p class="text-xs text-gray-400">Watched {{ $movie->created_at->diffForHumans() }}</p>
-                            
-                        </div>
-                    </a>
-                    @empty
-                    
-                    @endforelse
+                            <span class="text-sm text-base-content/80">Log out</span>
+                        </button>
+                    </form>
+
+                    <x-confirm-modal title="Delete account?" message="Your account and all of its data will be deleted. This action cannot be undone."
+                        :action="route('profile.destroy')" method="DELETE">
+                        <x-slot name="trigger" class="block w-full">
+                            <button type="button" class="flex w-full items-center gap-3 rounded-field px-3 py-2.5 text-left transition-colors hover:bg-base-300">
+                                <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-field bg-error/10">
+                                    @svg('monoicon-delete', 'h-3.5 w-3.5 text-error')
+                                </div>
+                                <span class="text-sm text-error/80">Delete account</span>
+                            </button>
+                        </x-slot>
+                    </x-confirm-modal>
                 </div>
             </div>
+
+            {{-- This Month --}}
+            <div class="rounded-box border border-white/6 bg-base-200 p-5">
+                <h3 class="font-display text-sm font-medium uppercase tracking-[0.14em] text-base-content">This Month</h3>
+                <div class="mt-3.5 flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-base-content/55">Films watched</span>
+                        <span class="font-display text-sm font-semibold text-base-content">{{ $thisMonth['watched'] }}</span>
+                    </div>
+                    <div class="h-px bg-white/6"></div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-base-content/55">Reviews written</span>
+                        <span class="font-display text-sm font-semibold text-base-content">{{ $thisMonth['reviews'] }}</span>
+                    </div>
+                    <div class="h-px bg-white/6"></div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-base-content/55">New followers</span>
+                        <span class="font-display text-sm font-semibold text-base-content">+{{ $thisMonth['followers'] }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Notifications --}}
+            @if($user->notifications->isNotEmpty())
+                <div class="rounded-box border border-white/6 bg-base-200 p-5">
+                    <h3 class="font-display text-sm font-medium uppercase tracking-[0.14em] text-base-content">Notifications</h3>
+                    <div class="mt-3.5 flex flex-col gap-3">
+                        @foreach($user->notifications as $notification)
+                            <div class="rounded-field border border-white/6 bg-base-300 p-3.5">
+                                <p class="text-sm text-base-content/80">{{ $notification->data['message'] }}</p>
+                                <span class="mt-1 block text-[0.7rem] text-base-content/40">{{ $notification->created_at->diffForHumans() }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
-        
-    </main>
+    </div>
+
 </div>
-</section>
 
 @endsection

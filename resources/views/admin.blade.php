@@ -44,7 +44,6 @@
                 </p>
             </div>
         @endif
-
         {{-- Suggestions --}}
         <div class="rounded-xl bg-neutral-900/80 border border-white/5 p-5">
             <p class="text-sm text-gray-400">Pending Suggestions</p>

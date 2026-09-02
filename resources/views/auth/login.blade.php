@@ -1,171 +1,282 @@
 @extends('layouts.app')
 
-@section('title', 'Login')
+@section('title', 'Log in')
+
+{{-- This page manages its own gutters so the two cards can sit centered on
+     an open black floor. --}}
+@section('main-class', '')
 
 @section('content')
-<div class="min-h-screen text-white overflow-x-hidden">
-   
-    <div class="relative z-10 min-h-screen flex">
-        <!-- Left Side - Branding -->
-        <div class="hidden lg:flex lg:w-1/2 items-center justify-center p-12 relative overflow-hidden">
-            <!-- Background Pattern -->
-              
-            <img src="{{ asset('images/unsplash.jpg') }}"
-                class="absolute inset-0 w-full h-full object-cover will-change-transform"
-                alt="Movie theater"
-            />
 
-            <div class="absolute inset-0 bg-gradient-to-br from-black/80 via-black/70 to-black/50"></div>
-            
-            <div class="relative z-10 text-center">
-                <!-- Logo -->
-                <div class="flex items-center justify-center gap-3 mb-8">
-                    <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                        <svg class="w-8 h-8 text-white" fill="yellow" viewBox="0 0 20 20">
-                            <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/>
-                        </svg>
-                    </div>
-                    <h1 class="text-4xl font-bold">Movie Platform</h1>
-                </div>
-                
-                <h2 class="text-3xl font-bold mb-4">Welcome Back!</h2>
-                <p class="text-xl text-white/80 mb-8 max-w-md">
-                    Sign in to continue your movie journey and discover new favorites.
+<div class="cb-grain relative isolate flex min-h-[calc(100vh-4rem)] w-full items-center justify-center px-6 py-16 sm:px-8">
+
+    <div class="flex w-full max-w-4xl flex-col items-center gap-8 lg:flex-row lg:items-stretch lg:justify-center">
+
+        {{-- ============================================================
+             STUB — branding card, the ticket half of the pair.
+             ============================================================ --}}
+        <div class="relative w-full max-w-sm shrink-0 overflow-hidden rounded-box border border-white/[0.09] bg-base-200">
+
+            {{-- the house print, thrown up behind the wordmark --}}
+            <div class="relative h-56 w-full sm:h-64">
+                <img src="{{ asset('heat.jpeg') }}" alt=""
+                     class="pointer-events-none absolute inset-0 h-full w-full object-cover object-top opacity-70">
+                <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-base-200 via-base-200/15 to-transparent" aria-hidden="true"></div>
+
+                <a href="/" class="relative z-10 inline-flex items-center gap-2 p-6 font-display text-lg font-black uppercase tracking-[-0.02em] text-primary">
+                    <span class="h-4 w-[3px] bg-primary"></span>
+                    Filmstack
+                </a>
+            </div>
+
+            {{-- Perforated tear-line between the poster and the copy --}}
+            <div class="relative h-px w-full" aria-hidden="true">
+                <div class="absolute inset-x-6 top-0 h-px border-t-2 border-dashed border-white/[0.09]"></div>
+                <span class="absolute -left-1 -top-[7px] h-3.5 w-3.5 rounded-full bg-base-100"></span>
+                <span class="absolute -right-1 -top-[7px] h-3.5 w-3.5 rounded-full bg-base-100"></span>
+            </div>
+
+            <div class="p-6 sm:p-8">
+                <p class="font-display text-[0.72rem] uppercase tracking-[0.22em] text-base-content/55">
+                    Take your seat.
                 </p>
-                
-                <!-- Features -->
-                <div class="space-y-4 text-left max-w-md">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-yellow-400/20 rounded-lg flex items-center justify-center">
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <span>Access your personal watchlist</span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-yellow-400/20 rounded-lg flex items-center justify-center">
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <span>Rate and review movies</span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-yellow-400/20 rounded-lg flex items-center justify-center">
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <span>Get personalized recommendations</span>
-                    </div>
-                </div>
+                <span class="mt-3 block h-[3px] w-14 bg-primary"></span>
+
+                <h1 class="mt-6 font-display text-3xl font-medium uppercase leading-[1.05] tracking-[0.04em] text-base-content">
+                    Welcome back<br>to the house.
+                </h1>
+
+                <p class="mt-5 text-sm leading-relaxed text-base-content/60">
+                    Watchlist, ratings, recommendations — everything a film lover needs, in one place.
+                </p>
+
+                <ul class="mt-8 space-y-4">
+                    <li class="flex items-center gap-3">
+                        <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+                            @svg('heroicon-o-bookmark', 'h-3.5 w-3.5')
+                        </span>
+                        <span class="text-sm text-base-content/75">Your personal watchlist</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+                            @svg('heroicon-o-pencil-square', 'h-3.5 w-3.5')
+                        </span>
+                        <span class="text-sm text-base-content/75">Reviews you've rated and written</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+                            @svg('heroicon-o-sparkles', 'h-3.5 w-3.5')
+                        </span>
+                        <span class="text-sm text-base-content/75">Recommendations built from your taste</span>
+                    </li>
+                </ul>
             </div>
         </div>
 
-        <!-- Right Side - Login Form -->
-        <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12">
-            <div class="w-full max-w-md">
-                
-                <!-- Header -->
-                <div class="text-center mb-8 lg:hidden">
-                    <div class="flex items-center justify-center gap-2 mb-4">
-                        <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/>
-                            </svg>
-                        </div>
-                        <span class="text-2xl font-bold text-white">Movie Platform</span>
-                    </div>
-                    <h2 class="text-2xl font-bold text-white mb-2">Welcome Back</h2>
-                    <p class="text-gray-400">Sign in to your account</p>
-                </div>
+        {{-- ============================================================
+             WINDOW — sign-in / create-account, sliding between the two
+             ============================================================ --}}
+        <div class="w-full max-w-sm shrink-0 overflow-hidden rounded-box border border-white/[0.09] bg-base-200 p-6 sm:p-8"
+             x-data="{ tab: {{ ($errors->has('name') || $errors->has('image') || old('name')) ? "'register'" : "'signin'" }} }">
 
-                <!-- Login Form Card -->
-                <div class="bg-gray-800/50 border border-gray-700 rounded-2xl p-8 shadow-2xl">
-                    <h3 class="text-2xl font-bold text-white mb-6 text-center hidden lg:block">Sign In</h3>
-                    
-                    <form method="POST" action="{{ route('login') }}" class="space-y-6">
-                        @csrf
-                        
-                        <!-- Email Field -->
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-300 mb-2">
-                                Email Address
-                            </label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
-                                    </svg>
-                                </div>
-                                <input type="email"  id="email"  name="email" value="{{ old('email') }}"
-                                    required autocomplete="email" autofocus
-                                    class="w-full pl-10 pr-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                    placeholder="Enter your email"
-                                >
-                            </div>
-                            @error('email')
-                                <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
-                            @enderror
-                        </div>
+            {{-- Sign in / Create account tabs --}}
+            <div class="flex items-center gap-6 border-b border-white/[0.09]">
+                <button type="button" @click="tab = 'signin'"
+                    class="relative -mb-px border-b-2 pb-3 font-display text-[0.78rem] font-semibold uppercase tracking-[0.14em] transition-colors"
+                    :class="tab === 'signin' ? 'border-primary text-base-content' : 'border-transparent text-base-content/45 hover:text-base-content/70'">
+                    Sign in
+                </button>
+                <button type="button" @click="tab = 'register'"
+                    class="relative -mb-px border-b-2 pb-3 font-display text-[0.78rem] uppercase tracking-[0.14em] transition-colors"
+                    :class="tab === 'register' ? 'border-primary font-semibold text-base-content' : 'border-transparent text-base-content/45 hover:text-base-content/70'">
+                    Create account
+                </button>
+            </div>
 
-                        <!-- Password Field -->
-                        <div>
-                            <label for="password" class="block text-sm font-medium text-gray-300 mb-2">
-                                Password
-                            </label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                    </svg>
-                                </div>
-                                <input  type="password" id="password"  name="password" required 
-                                    autocomplete="current-password"
-                                    class="w-full pl-10 pr-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                    placeholder="Enter your password"
-                                >
-                            </div>
-                            @error('password')
-                                <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
-                            @enderror
-                        </div>
+            <x-auth-session-status class="mt-6" :status="session('status')" />
 
-                        <!-- Remember Me & Forgot Password -->
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <input type="checkbox" id="remember" name="remember"
-                                    {{ old('remember') ? 'checked' : '' }}
-                                    class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
-                                >
-                                <label for="remember" class="ml-2 text-sm text-gray-300">
-                                    Remember me
+            {{-- Sliding viewport --}}
+            <div class="mt-6 overflow-hidden">
+                <div class="flex w-[200%] items-start transition-transform duration-500 ease-in-out"
+                     :class="tab === 'register' ? '-translate-x-1/2' : 'translate-x-0'">
+
+                    {{-- ---------------- Sign in panel ---------------- --}}
+                    <div class="w-1/2 shrink-0 pr-3">
+                        <form method="POST" action="{{ route('login') }}" class="space-y-5">
+                            @csrf
+
+                            {{-- Email --}}
+                            <div>
+                                <label for="email" class="mb-2 block font-display text-[0.72rem] uppercase tracking-[0.16em] text-base-content/55">
+                                    Email address
                                 </label>
+                                <div class="flex items-center gap-2.5 rounded-selector border border-white/[0.09] bg-base-100 px-4 py-3 transition focus-within:border-primary/50">
+                                    @svg('heroicon-o-envelope', 'h-4 w-4 shrink-0 text-base-content/40')
+                                    <input id="email" type="email" name="email" value="{{ old('email') }}"
+                                        required autocomplete="email"
+                                        placeholder="you@example.com"
+                                        class="w-full bg-transparent text-sm text-base-content placeholder:text-base-content/40 focus:outline-none">
+                                </div>
+                                @error('email')
+                                    <p class="mt-2 text-sm text-error">{{ $message }}</p>
+                                @enderror
                             </div>
 
-                            @if (Route::has('password.request'))
-                                <a href="{{ route('password.request') }}" class="text-sm text-blue-400 hover:text-blue-300 transition-colors">
-                                    Forgot password?
-                                </a>
-                            @endif
-                        </div>
+                            {{-- Password --}}
+                            <div x-data="{ show: false }">
+                                <div class="mb-2 flex items-center justify-between gap-4">
+                                    <label for="password" class="block font-display text-[0.72rem] uppercase tracking-[0.16em] text-base-content/55">
+                                        Password
+                                    </label>
+                                    @if (Route::has('password.request'))
+                                        <a href="{{ route('password.request') }}" class="font-display text-[0.68rem] uppercase tracking-[0.14em] text-base-content/45 transition-colors hover:text-primary">
+                                            Forgot it?
+                                        </a>
+                                    @endif
+                                </div>
+                                <div class="flex items-center gap-2.5 rounded-selector border border-white/[0.09] bg-base-100 px-4 py-3 transition focus-within:border-primary/50">
+                                    @svg('heroicon-o-lock-closed', 'h-4 w-4 shrink-0 text-base-content/40')
+                                    <input :type="show ? 'text' : 'password'" id="password" name="password"
+                                        required autocomplete="current-password"
+                                        placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                                        class="w-full bg-transparent text-sm text-base-content placeholder:text-base-content/40 focus:outline-none">
+                                    <button type="button" @click="show = !show"
+                                        class="shrink-0 font-display text-[0.68rem] uppercase tracking-[0.14em] text-base-content/45 transition-colors hover:text-primary"
+                                        x-text="show ? 'Hide' : 'Show'">Show</button>
+                                </div>
+                                @error('password')
+                                    <p class="mt-2 text-sm text-error">{{ $message }}</p>
+                                @enderror
+                            </div>
 
-                        <!-- Submit Button -->
-                        <button type="submit" class="w-full text-white font-semibold py-3 px-6 rounded-lg bg-yellow-500 hover:bg-yellow-400">
-                            Sign In
-                        </button>
+                            {{-- Remember me --}}
+                            <label for="remember" class="flex select-none items-center gap-2.5">
+                                <input type="checkbox" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }}
+                                    class="checkbox checkbox-sm checkbox-primary rounded-[0.3rem]">
+                                <span class="text-sm text-base-content/65">Keep me signed in</span>
+                            </label>
 
-                    </form>
+                            {{-- Submit --}}
+                            <button type="submit"
+                                class="w-full rounded-selector bg-primary px-6 py-3.5 font-display text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-primary-content transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
+                                Sign in
+                            </button>
+                        </form>
+
+                        <p class="mt-8 text-center text-sm text-base-content/55">
+                            New to Filmstack?
+                            <button type="button" @click="tab = 'register'" class="font-medium text-primary transition-colors hover:brightness-110">
+                                Create an account
+                            </button>
+                        </p>
+                    </div>
+
+                    {{-- ---------------- Create account panel ---------------- --}}
+                    <div class="w-1/2 shrink-0 pl-3">
+                        <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data" class="space-y-5">
+                            @csrf
+
+                            {{-- Username --}}
+                            <div>
+                                <label for="name" class="mb-2 block font-display text-[0.72rem] uppercase tracking-[0.16em] text-base-content/55">
+                                    Username
+                                </label>
+                                <div class="flex items-center gap-2.5 rounded-selector border border-white/[0.09] bg-base-100 px-4 py-3 transition focus-within:border-primary/50">
+                                    @svg('heroicon-o-user', 'h-4 w-4 shrink-0 text-base-content/40')
+                                    <input id="name" type="text" name="name" value="{{ old('name') }}"
+                                        required autocomplete="name"
+                                        placeholder="Your username"
+                                        class="w-full bg-transparent text-sm text-base-content placeholder:text-base-content/40 focus:outline-none">
+                                </div>
+                                @error('name')
+                                    <p class="mt-2 text-sm text-error">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Email --}}
+                            <div>
+                                <label for="register-email" class="mb-2 block font-display text-[0.72rem] uppercase tracking-[0.16em] text-base-content/55">
+                                    Email address
+                                </label>
+                                <div class="flex items-center gap-2.5 rounded-selector border border-white/[0.09] bg-base-100 px-4 py-3 transition focus-within:border-primary/50">
+                                    @svg('heroicon-o-envelope', 'h-4 w-4 shrink-0 text-base-content/40')
+                                    <input id="register-email" type="email" name="email" value="{{ old('email') }}"
+                                        required autocomplete="email"
+                                        placeholder="you@example.com"
+                                        class="w-full bg-transparent text-sm text-base-content placeholder:text-base-content/40 focus:outline-none">
+                                </div>
+                                @error('email')
+                                    <p class="mt-2 text-sm text-error">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Profile image --}}
+                            <div>
+                                <label for="image" class="mb-2 block font-display text-[0.72rem] uppercase tracking-[0.16em] text-base-content/55">
+                                    Profile image
+                                </label>
+                                <input id="image" type="file" name="image" accept="image/*"
+                                    class="block w-full rounded-selector border border-white/[0.09] bg-base-100 text-sm text-base-content/60 file:mr-3 file:rounded-selector file:border-0 file:bg-primary/15 file:px-3 file:py-1.5 file:font-display file:text-[0.68rem] file:uppercase file:tracking-[0.14em] file:text-primary file:transition hover:file:brightness-110">
+                                @error('image')
+                                    <p class="mt-2 text-sm text-error">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Password --}}
+                            <div x-data="{ show: false }">
+                                <label for="register-password" class="mb-2 block font-display text-[0.72rem] uppercase tracking-[0.16em] text-base-content/55">
+                                    Password
+                                </label>
+                                <div class="flex items-center gap-2.5 rounded-selector border border-white/[0.09] bg-base-100 px-4 py-3 transition focus-within:border-primary/50">
+                                    @svg('heroicon-o-lock-closed', 'h-4 w-4 shrink-0 text-base-content/40')
+                                    <input :type="show ? 'text' : 'password'" id="register-password" name="password"
+                                        required autocomplete="new-password"
+                                        placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                                        class="w-full bg-transparent text-sm text-base-content placeholder:text-base-content/40 focus:outline-none">
+                                    <button type="button" @click="show = !show"
+                                        class="shrink-0 font-display text-[0.68rem] uppercase tracking-[0.14em] text-base-content/45 transition-colors hover:text-primary"
+                                        x-text="show ? 'Hide' : 'Show'">Show</button>
+                                </div>
+                                @error('password')
+                                    <p class="mt-2 text-sm text-error">{{ $message }}</p>
+                                @enderror
+                                <p class="mt-2 text-xs text-base-content/45">
+                                    At least 8 characters, mixing letters and numbers.
+                                </p>
+                            </div>
+
+                            {{-- Confirm password --}}
+                            <div x-data="{ show: false }">
+                                <label for="password_confirmation" class="mb-2 block font-display text-[0.72rem] uppercase tracking-[0.16em] text-base-content/55">
+                                    Confirm password
+                                </label>
+                                <div class="flex items-center gap-2.5 rounded-selector border border-white/[0.09] bg-base-100 px-4 py-3 transition focus-within:border-primary/50">
+                                    @svg('heroicon-o-lock-closed', 'h-4 w-4 shrink-0 text-base-content/40')
+                                    <input :type="show ? 'text' : 'password'" id="password_confirmation" name="password_confirmation"
+                                        required autocomplete="new-password"
+                                        placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                                        class="w-full bg-transparent text-sm text-base-content placeholder:text-base-content/40 focus:outline-none">
+                                    <button type="button" @click="show = !show"
+                                        class="shrink-0 font-display text-[0.68rem] uppercase tracking-[0.14em] text-base-content/45 transition-colors hover:text-primary"
+                                        x-text="show ? 'Hide' : 'Show'">Show</button>
+                                </div>
+                            </div>
+
+                            {{-- Submit --}}
+                            <button type="submit"
+                                class="w-full rounded-selector bg-primary px-6 py-3.5 font-display text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-primary-content transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
+                                Create account
+                            </button>
+                        </form>
+
+                        <p class="mt-8 text-center text-sm text-base-content/55">
+                            Already have an account?
+                            <button type="button" @click="tab = 'signin'" class="font-medium text-primary transition-colors hover:brightness-110">
+                                Sign in
+                            </button>
+                        </p>
+                    </div>
                 </div>
-
-                <!-- Sign Up Link -->
-                <p class="mt-8 text-center text-gray-400">
-                    Don't have an account? 
-                    <a href="{{ route('register') }}" class="text-blue-400 hover:text-blue-300 font-medium transition-colors">
-                        Sign up here
-                    </a>
-                </p>
             </div>
         </div>
     </div>
