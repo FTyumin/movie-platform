@@ -20,7 +20,8 @@ class ReviewObserver
      */
     public function updated(Review $review): void
     {
-        //
+        $movie = $review->movie;
+        $movie->updateRating();
     }
 
     /**
@@ -28,7 +29,8 @@ class ReviewObserver
      */
     public function deleted(Review $review): void
     {
-        //
+        $movie = $review->movie;
+        $movie->updateRating();
     }
 
     /**

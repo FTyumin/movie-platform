@@ -299,6 +299,10 @@ class ContentBasedRecommender
     }
 
     private function getRecommendationsForNewUser(User $user, int $limit) {
+        if(!$user) {
+            return [];
+        }
+        
         if (count($user->favoriteGenres) == 0) {
             return $this->getPopularMovies($limit);
         }

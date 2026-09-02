@@ -45,7 +45,6 @@ class TmdbApiClient {
     }
 
     public function trailerKey(int $movieId) {
-
         try {
             $res = $this->http->get("movie/{$movieId}/videos", $this->buildOptions());
             $data = json_decode($res->getBody(), true);
@@ -70,8 +69,12 @@ class TmdbApiClient {
     }
 
     public function loadAdditionalActors(int $movieId) {
+        $movie = Movie::find($movieId);
+        if(!$movie) {
+            return [];
+        }
 
-        $movieInfo = $this->getMovieWithExtras($movieId);
+        $movieInfo = $this->getMovieWithExtras($movie->tmbd_id);
 
         if(empty($movieInfo)) {
             return [];
