@@ -13,7 +13,7 @@
         x-cloak
         x-show="open"
         x-transition.opacity
-        class="fixed inset-0 bg-black/60 z-40"
+        class="fixed inset-0 z-40 bg-black/70"
         @click="open = false"
     ></div>
 
@@ -25,15 +25,15 @@
         class="fixed inset-0 z-50 flex items-center justify-center px-4"
     >
         <div
-            class="bg-gray-900 border border-gray-700 rounded-2xl shadow-xl max-w-md w-full p-6"
+            class="w-full max-w-md rounded-box border border-white/9 bg-base-200 p-6 shadow-2xl"
             @click.stop
         >
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-white">{{ $title }}</h3>
+            <div class="mb-4 flex items-center justify-between">
+                <h3 class="font-display text-lg font-semibold uppercase tracking-[0.02em] text-base-content">{{ $title }}</h3>
                 <button type="button"
                     @click="open = false"
-                    class="text-gray-400 hover:text-white transition" aria-label="Close">
-                    ✕
+                    class="flex h-8 w-8 items-center justify-center rounded-selector text-base-content/45 transition hover:bg-base-300 hover:text-base-content" aria-label="Close">
+                    @svg('heroicon-o-x-mark', 'h-4 w-4')
                 </button>
             </div>
 
@@ -41,19 +41,17 @@
                 @forelse($users as $user)
                     <a
                         href="{{ route('profile.show', $user) }}"
-                        class="flex items-center gap-3 py-3 border-b border-gray-800 last:border-b-0 hover:bg-gray-800/50 rounded-lg px-2 transition"
+                        class="flex items-center gap-3 rounded-selector border-b border-white/6 px-2 py-3 transition last:border-b-0 hover:bg-base-300"
                     >
-                        <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-700 shrink-0">
-                            <img
-                                src="{{ $user->image ? asset('storage/' . $user->image) : asset('images/person-placeholder.png') }}"
-                                alt="{{ $user->name }}"
-                                class="w-full h-full object-cover"
-                            />
-                        </div>
-                        <span class="text-white font-medium">{{ $user->name }}</span>
+                        <img
+                            src="{{ $user->image ? asset('storage/' . $user->image) : asset('images/person-placeholder.png') }}"
+                            alt=""
+                            class="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-white/10"
+                        />
+                        <span class="text-sm font-medium text-base-content">{{ $user->name }}</span>
                     </a>
                 @empty
-                    <p class="text-sm text-gray-400">{{ $emptyMessage }}</p>
+                    <p class="text-sm text-base-content/50">{{ $emptyMessage }}</p>
                 @endforelse
             </div>
         </div>

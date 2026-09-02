@@ -9,7 +9,7 @@
         x-cloak
         x-show="open"
         x-transition.opacity
-        class="fixed inset-0 bg-black/60 z-40"
+        class="fixed inset-0 z-40 bg-black/70"
         @click="open = false"
     ></div>
 
@@ -22,22 +22,28 @@
         class="fixed inset-0 z-50 flex items-center justify-center px-4"
     >
         <div
-            class="bg-gray-900 border border-gray-700 rounded-2xl shadow-xl max-w-sm w-full p-6"
+            class="w-full max-w-sm rounded-box border border-white/9 bg-base-200 p-6 shadow-2xl sm:p-7"
             @click.stop
         >
-            <h3 class="text-lg font-semibold text-white mb-2">
-                {{ $title }}
-            </h3>
+            <div class="flex items-start gap-4">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-selector bg-error/15 text-error">
+                    @svg('heroicon-o-exclamation-triangle', 'h-5 w-5')
+                </span>
+                <div>
+                    <h3 class="font-display text-lg font-semibold uppercase tracking-[0.02em] text-base-content">
+                        {{ $title }}
+                    </h3>
+                    <p class="mt-1.5 text-sm leading-relaxed text-base-content/60">
+                        {{ $message }}
+                    </p>
+                </div>
+            </div>
 
-            <p class="text-sm text-gray-400 mb-6">
-                {{ $message }}
-            </p>
-
-            <div class="flex justify-end gap-3">
+            <div class="mt-6 flex justify-end gap-3">
                 <button
                     @click="open = false"
                     type="button"
-                    class="px-4 py-2 rounded-xl bg-gray-700 hover:bg-gray-600 text-white transition"
+                    class="rounded-selector border border-white/9 bg-base-100 px-5 py-2.5 font-display text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-base-content/70 transition hover:bg-base-300"
                 >
                     Cancel
                 </button>
@@ -50,7 +56,7 @@
 
                     <button
                         type="submit"
-                        class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition"
+                        class="rounded-selector bg-error px-5 py-2.5 font-display text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-error-content transition hover:brightness-110"
                     >
                         Confirm
                     </button>
