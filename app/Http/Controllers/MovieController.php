@@ -19,6 +19,22 @@ class MovieController extends Controller
     }
 
     public function home() {
+        if (!auth()->check()) {
+            // first 3 headline the hero poster stack, the rest fill "Trending now"
+            $movies = Movie::orderByDesc('tmdb_rating')->take(9)->get();
+
+            $topReviews = Review::with(['user', 'movie'])
+                ->withCount(['likedBy', 'comments'])
+                ->where('spoilers', false)
+                ->whereNotNull('description')
+                ->orderByDesc('rating')
+                ->latest()
+                ->take(3)
+                ->get();
+
+            return view('home-guest', compact('movies', 'topReviews'));
+        }
+
         // first 3 headline the hero poster stack, the rest fill "Trending now"
         $movies = Movie::orderByDesc('tmdb_rating')->take(9)->get();
         $genres = Genre::withCount('movies')->orderByDesc('movies_count')->take(10)->get();

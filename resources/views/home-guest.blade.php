@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-guest-layout>
 
 @php
     // First three top-rated posters headline the hero stack, the rest
@@ -9,11 +9,11 @@
     $freshReviews = $topReviews->take(3);
 @endphp
 
-
-{{-- HERO — headline and CTAs on the left;  --}}
+{{-- HERO — mirrors home.blade.php's authenticated hero (same headline
+     treatment, same staggered poster stack), swapping the personal
+     "pick up where you left off" copy/CTAs for guest-facing ones. --}}
 <section class="cb-grain relative isolate flex min-h-144 items-center overflow-hidden lg:min-h-176">
 
-    {{-- ambient light, right side --}}
     <div class="relative mx-auto w-full max-w-[110rem] px-6 py-24 sm:px-8">
         <div class="max-w-xl">
             <h1 class="cb-animate-rise cb-delay-1 font-display text-4xl font-medium uppercase leading-[1.05] tracking-[0.06em] text-base-content sm:text-5xl lg:text-6xl">
@@ -21,21 +21,28 @@
             </h1>
 
             <p class="cb-animate-rise cb-delay-2 mt-6 max-w-md text-base leading-relaxed text-base-content/60">
-                Pick up where you left off, {{ auth()->user()->name }}. Everything below is
-                drawn from what you've rated, watched and saved.
+                Rate what you've seen, write what you actually thought, and get
+                recommendations built from your own taste instead of a chart.
             </p>
 
             <div class="cb-animate-rise cb-delay-3 mt-10 flex flex-wrap items-center gap-4">
-                <a href="{{ route('movies.index') }}"
+                <a href="{{ url('/register') }}"
                    class="inline-flex items-center gap-2.5 rounded-selector bg-primary px-7 py-3.5 font-display text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-primary-content transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
-                    @svg('heroicon-o-film', 'h-4 w-4')
+                    @svg('heroicon-o-pencil-square', 'h-4 w-4')
+                    Start reviewing
+                </a>
+                <a href="{{ route('movies.index') }}"
+                   class="inline-flex items-center gap-2 rounded-selector border border-primary/50 px-7 py-3.5 font-display text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-primary transition hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
                     Browse films
                 </a>
-                <a href="{{ url('/feed') }}"
-                   class="inline-flex items-center gap-2 rounded-selector border border-primary/50 px-7 py-3.5 font-display text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-primary transition hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
-                    Your feed
-                </a>
             </div>
+
+            <p class="cb-animate-rise cb-delay-3 mt-8 text-sm text-base-content/55">
+                Already have an account?
+                <a href="{{ url('/login') }}" class="font-medium text-primary transition-colors hover:brightness-110">
+                    Sign in
+                </a>
+            </p>
         </div>
     </div>
 
@@ -68,33 +75,6 @@
 </section>
 
 {{-- ============================================================
-     GENRE RAIL — the filter shortcut, pinned "All films" first
-     ============================================================ --}}
-@if($genres->isNotEmpty())
-    <section class="mx-auto w-full max-w-[110rem] px-6 sm:px-8" aria-label="Browse by genre">
-        <div class="relative flex items-center gap-3">
-            <a href="{{ route('movies.index') }}"
-               class="shrink-0 rounded-selector bg-primary px-6 py-3 font-display text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-primary-content transition hover:brightness-110">
-                All films
-            </a>
-
-            {{-- min-w-0 so the rail scrolls instead of widening the page --}}
-            <div class="cb-rail flex min-w-0 gap-3 overflow-x-auto py-1">
-                @foreach($genres as $genre)
-                    <a href="{{ route('movies.index', ['genres' => [$genre->id]]) }}"
-                       class="shrink-0 rounded-selector border border-white/[0.07] bg-base-200 px-6 py-3 font-display text-[0.75rem] uppercase tracking-[0.14em] text-base-content/70 transition hover:border-primary/40 hover:bg-base-300 hover:text-base-content">
-                        {{ $genre->name }}
-                    </a>
-                @endforeach
-            </div>
-
-            {{-- edge fade so the rail reads as scrollable --}}
-            <div class="pointer-events-none absolute inset-y-0 right-0 w-12 bg-linear-to-l from-base-100 to-transparent"></div>
-        </div>
-    </section>
-@endif
-
-{{-- ============================================================
      TRENDING NOW
      ============================================================ --}}
 @if($trendingMovies->isNotEmpty())
@@ -123,25 +103,10 @@
 @endif
 
 {{-- ============================================================
-     PERSONAL RECOMMENDATIONS
-     ============================================================ --}}
-@if(!empty($userRecommendations))
-    <section class="mx-auto w-full max-w-[110rem] px-6 pt-24 sm:px-8">
-        <x-section-head title="Picked for you" :href="route('movies.index')" link-label="View all" />
-
-        <div class="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-6">
-            @foreach(collect($userRecommendations)->take(6) as $recommendation)
-                <x-movie-browse-card :movie="$recommendation['movie']" />
-            @endforeach
-        </div>
-    </section>
-@endif
-
-{{-- ============================================================
      FRESH REVIEWS
      ============================================================ --}}
 @if($freshReviews->isNotEmpty())
-    <section class="mx-auto w-full max-w-[110rem] px-6 pt-24 sm:px-8">
+    <section class="mx-auto w-full max-w-[110rem] px-6 py-24 sm:px-8">
         <x-section-head title="Fresh reviews" :href="route('reviews')" link-label="Read all" />
 
         <div class="flex flex-col gap-4">
@@ -200,38 +165,4 @@
     </section>
 @endif
 
-{{-- ============================================================
-     POPULAR LISTS
-     ============================================================ --}}
-@if($lists->isNotEmpty())
-    <section class="mx-auto w-full max-w-[110rem] px-6 py-24 sm:px-8">
-        <x-section-head title="Popular lists" :href="route('lists.index')" link-label="View all" />
-
-        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            @foreach($lists as $list)
-                <a href="{{ route('lists.show', $list) }}"
-                   class="group rounded-box border border-white/6 bg-base-200 p-5 transition-colors hover:border-primary/30">
-                    <div class="grid grid-cols-4 gap-1.5">
-                        @foreach($list->movies as $movie)
-                            <div class="aspect-2/3 overflow-hidden rounded-field bg-base-300">
-                                <img src="https://image.tmdb.org/t/p/w185/{{ $movie->poster_url }}" alt=""
-                                     class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <p class="mt-4 font-display text-[0.9rem] font-medium uppercase tracking-wider text-base-content transition-colors group-hover:text-primary">
-                        {{ $list->name }}
-                    </p>
-                    <div class="mt-1.5 flex items-center gap-2 text-xs text-base-content/40">
-                        <span>{{ $list->movies_count }} {{ Str::plural('film', $list->movies_count) }}</span>
-                        <span class="h-0.75 w-0.75 rounded-full bg-base-content/25"></span>
-                        <span>by {{ $list->user->name }}</span>
-                    </div>
-                </a>
-            @endforeach
-        </div>
-    </section>
-@endif
-
-</x-app-layout>
+</x-guest-layout>
