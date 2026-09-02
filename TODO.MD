@@ -3,10 +3,10 @@
 Day-to-day task tracker. For the full audit and phased roadmap, see `IMPROVEMENT_PLAN.md`.
 
 ## In Progress
-- updating the design
+- fix slow database queries
 
 ## Up Next
-- fix slow database queries
+
 
 ## Backlog
 - [ ]

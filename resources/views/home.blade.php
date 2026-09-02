@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout-v2>
 
 @php
     // First three top-rated posters headline the hero stack, the rest
@@ -234,4 +234,4 @@
     </section>
 @endif
 
-</x-app-layout>
+</x-app-layout-v2>
