@@ -5,7 +5,6 @@ namespace App\Models;
 // use App\Models\Actor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Maize\Markable\Markable;
 use Maize\Markable\Models\Favorite;
 use Spatie\Sluggable\HasSlug;

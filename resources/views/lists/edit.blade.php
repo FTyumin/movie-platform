@@ -1,85 +1,80 @@
 @extends('layouts.app')
 
+@section('title', 'Edit List')
+
+@section('main-class', '')
+
 @section('content')
-    <div class="min-h-screen bg-black text-white flex justify-center px-6 py-20">
-    <div class="w-full max-w-xl">
 
-        {{-- Header --}}
-        <div class="mb-10">
-            <h1 class="text-3xl font-bold text-white mb-2">Edit <span class="text-yellow-500">{{ $list->name }}</span></h1>
+<div class="cb-grain relative isolate flex min-h-[calc(100vh-4rem)] w-full items-center justify-center px-6 py-16 sm:px-8">
+
+    <div class="w-full max-w-xl shrink-0 overflow-hidden rounded-box border border-white/9 bg-base-200 p-6 sm:p-8">
+
+        <div class="flex items-center gap-3">
+            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-selector bg-primary/15 text-primary">
+                @svg('heroicon-o-pencil-square', 'h-6 w-6')
+            </span>
+            <div>
+                <h1 class="font-display text-2xl font-semibold uppercase tracking-[0.02em] text-base-content">
+                    Edit <span class="text-primary">{{ $list->name }}</span>
+                </h1>
+                <p class="text-sm text-base-content/55">Update your list's details and privacy.</p>
+            </div>
         </div>
 
-        {{-- Card --}}
-        <div class="bg-gray-900/70 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl">
+        <form action="{{ route('lists.update', $list) }}" method="POST" class="mt-6 space-y-5">
+            @method('PATCH')
+            @csrf
 
-            <form action="{{ route('lists.update', $list) }}" method="POST" class="space-y-6">
-                @method('PATCH')
-                @csrf
-
-                {{-- Name --}}
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-300 mb-2">
-                        List name
-                    </label>
-                    <input type="text" id="name" name="name" value="{{ $list->name }}"
-                        required
-                        class="w-full px-4 py-3 rounded-lg bg-gray-800/60 border border-gray-600
-                               text-white placeholder-gray-400
-                               focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+            {{-- Name --}}
+            <div>
+                <label for="name" class="mb-2 block font-display text-[0.72rem] uppercase tracking-[0.16em] text-base-content/55">
+                    List name
+                </label>
+                <div class="flex items-center gap-2.5 rounded-selector border border-white/9 bg-base-100 px-4 py-3 transition focus-within:border-primary/50">
+                    @svg('heroicon-o-tag', 'h-4 w-4 shrink-0 text-base-content/40')
+                    <input type="text" id="name" name="name" value="{{ old('name', $list->name) }}"
+                        required maxlength="30"
                         placeholder="e.g. Best Sci-Fi Movies"
-                    >
-                    @error('name')
-                        <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
-                    @enderror
+                        class="w-full bg-transparent text-sm text-base-content placeholder:text-base-content/40 focus:outline-none">
                 </div>
+                @error('name')
+                    <p class="mt-2 text-sm text-error">{{ $message }}</p>
+                @enderror
+            </div>
 
-                {{-- Description --}}
-                <div>
-                    <label for="description" class="block text-sm font-medium text-gray-300 mb-2">
-                        Description
-                    </label>
-                    <textarea id="description" name="description" rows="4"
-                        class="w-full px-4 py-3 rounded-lg bg-gray-800/60 border border-gray-600
-                               text-white placeholder-gray-400
-                               focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
-                        placeholder="What is this list about?"
-                    >{{ $list->description }}</textarea>
+            {{-- Description --}}
+            <div>
+                <label for="description" class="mb-2 block font-display text-[0.72rem] uppercase tracking-[0.16em] text-base-content/55">
+                    Description
+                </label>
+                <textarea id="description" name="description" rows="4" maxlength="300"
+                    placeholder="What is this list about?"
+                    class="w-full rounded-box border border-white/9 bg-base-100 px-4 py-3 text-sm text-base-content placeholder:text-base-content/40 transition focus:border-primary/50 focus:outline-none">{{ old('description', $list->description) }}</textarea>
+                @error('description')
+                    <p class="mt-2 text-sm text-error">{{ $message }}</p>
+                @enderror
+            </div>
 
-                    @error('description')
-                        <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
-                    @enderror
-                </div>
+            {{-- Privacy --}}
+            <label for="is_private" class="flex cursor-pointer items-center justify-between gap-4 rounded-box border border-white/9 bg-base-100 px-4 py-3.5">
+                <span>
+                    <span class="block text-sm font-medium text-base-content">Private list</span>
+                    <span class="mt-0.5 block text-xs text-base-content/55">Only you will be able to see this list</span>
+                </span>
+                <input type="hidden" name="is_private" value="0">
+                <input type="checkbox" id="is_private" name="is_private" value="1" {{ old('is_private', $list->is_private) ? 'checked' : '' }}
+                    class="checkbox checkbox-primary rounded-[0.3rem]">
+            </label>
 
-                {{-- Privacy --}}
-                <div class="flex items-center justify-between rounded-xl bg-gray-800/40 border border-gray-700 px-4 py-3">
-                    <div>
-                        <p class="text-sm font-medium text-white">Public list</p>
-                        <p class="text-xs text-gray-400">
-                            Public lists are visible to other users
-                        </p>
-                    </div>
-
-                    <input type="hidden" name="is_private" value="0">
-                    <input type="checkbox" id="is_private" name="is_private" value="1"
-                        class="w-5 h-5 rounded border-gray-600 bg-gray-700
-                               text-yellow-400 focus:ring-yellow-400"
-                    >
-                </div>
-
-                {{-- Submit --}}
-                <div class="pt-4 flex justify-end">
-                    <button
-                        type="submit"
-                        class="inline-flex items-center gap-2 px-6 py-3 rounded-xl
-                               bg-yellow-400 text-gray-900 font-semibold
-                               hover:bg-yellow-300 transition
-                               focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-black"
-                    >
-                        Edit List
-                    </button>
-                </div>
-            </form>
-        </div>
+            {{-- Submit --}}
+            <div class="flex justify-end pt-2">
+                <button type="submit"
+                    class="rounded-selector bg-primary px-8 py-3.5 font-display text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-primary-content transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
+                    Save changes
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 

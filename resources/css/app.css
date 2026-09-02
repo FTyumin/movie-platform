@@ -1,7 +1,173 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@source "../**/*.blade.php";
+@source "../**/*.js";
+@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
+@source "../../storage/framework/views/*.php";
+
+@plugin "daisyui" {
+  themes: false;
+}
+
+/* "Cinebold" theme — a darkened auditorium with one light source.
+   Near-black neutral stock, projector amber as the single accent, and
+   nothing else competing for it. Replaces daisyUI's light/dark auto-switch
+   so every component matches the hand-styled pages instead of the
+   visitor's OS color scheme. */
+@plugin "daisyui/theme" {
+  name: "cinebold";
+  default: true;
+  color-scheme: dark;
+
+  --color-base-100: #0a0a0b;   /* house lights out */
+  --color-base-200: #141416;   /* card stock */
+  --color-base-300: #1e1e21;   /* raised chip / hover */
+  --color-base-content: #efede8; /* screen white */
+
+  --color-primary: #ffc91c;      /* projector amber — the only accent */
+  --color-primary-content: #0a0a0b;
+  --color-secondary: #c88a00;    /* burnt amber, for depth only */
+  --color-secondary-content: #0a0a0b;
+  --color-accent: #ffc91c;
+  --color-accent-content: #0a0a0b;
+  --color-neutral: #1e1e21;
+  --color-neutral-content: #efede8;
+
+  --color-info: #6ba9c4;
+  --color-info-content: #0c1a24;
+  --color-success: #5fa668;
+  --color-success-content: #0e1a10;
+  --color-warning: #e0a53a;
+  --color-warning-content: #1a1512;
+  --color-error: #dc2626;
+  --color-error-content: #fef2f2;
+
+  --radius-selector: 9999px;  /* pills: nav, chips, buttons */
+  --radius-field: 0.5rem;
+  --radius-box: 0.875rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  /* Jost is a Futura revival — the geometric face film titling has used
+     since Kubrick. Carries every uppercase label, heading and button. */
+  --font-display: "Jost", "Futura", ui-sans-serif, sans-serif;
+  --font-condensed: "Oswald", "Arial Narrow", ui-sans-serif, sans-serif;
+  --font-marquee: "Anton", "Oswald", ui-sans-serif, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* ===== Cinebold signature: the aperture ==================================
+   The hero is lit by a single lens iris — concentric rings around a hot
+   amber core, opening once on load. Built from two layers so the crisp
+   rings stay crisp while the bloom behind them stays soft. */
+
+.cb-bloom {
+  border-radius: 50%;
+  /* The bloom is a ring, not a disc — the light spills off the rim and the
+     middle stays black, so the aperture reads as an opening rather than
+     as a sphere. */
+  background: radial-gradient(circle,
+    transparent 0 28%,
+    rgba(255, 214, 120, 0.30) 42%,
+    rgba(255, 158, 20, 0.34) 51%,
+    rgba(176, 84, 0, 0.22) 62%,
+    rgba(80, 40, 0, 0.10) 72%,
+    transparent 82%);
+  filter: blur(30px);
+}
+
+/* The rim. Bright enough to be the only light source in the room. */
+.cb-iris {
+  border-radius: 50%;
+  border: 2px solid rgba(255, 238, 190, 0.50);
+  box-shadow:
+    0 0 170px 34px rgba(255, 168, 28, 0.34),
+    0 0 50px 4px rgba(255, 214, 120, 0.34),
+    inset 0 0 140px 46px rgba(10, 10, 11, 0.34),
+    inset 0 0 80px 6px rgba(255, 234, 178, 0.34);
+}
+
+/* Outer barrel ring — a second, fainter circle so the lens reads as
+   machined rather than as a single glow. */
+.cb-iris-outer {
+  border-radius: 50%;
+  border: 1px solid rgba(255, 200, 90, 0.12);
+  box-shadow: inset 0 0 80px 14px rgba(255, 170, 40, 0.06);
+}
+
+/* Uneven hot spot along the rim — a real lens never lights evenly, and this
+   is what stops the aperture reading as a flat drawn circle. */
+.cb-iris-sheen {
+  border-radius: 50%;
+  background: conic-gradient(from 238deg,
+    rgba(255, 226, 160, 0.32) 0deg,
+    rgba(255, 250, 232, 1) 72deg,
+    rgba(255, 206, 96, 0.70) 152deg,
+    rgba(255, 186, 70, 0.34) 236deg,
+    rgba(255, 226, 160, 0.32) 360deg);
+  -webkit-mask: radial-gradient(circle, transparent 0 44%, #000 49% 53%, transparent 58%);
+          mask: radial-gradient(circle, transparent 0 44%, #000 49% 53%, transparent 58%);
+  filter: blur(7px);
+}
+
+/* ===== Utilities ========================================================= */
+
+/* Fine stock texture — keeps flat black from looking like flat black. */
+.cb-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* Horizontal chip rail — scrolls without showing a scrollbar. */
+.cb-rail {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.cb-rail::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes cb-iris-open {
+    from { opacity: 0; transform: scale(0.82); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  .cb-animate-iris {
+    animation: cb-iris-open 1.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes cb-rise {
+    from { opacity: 0; transform: translateY(0.75rem); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .cb-animate-rise {
+    animation: cb-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .cb-delay-1 { animation-delay: 0.45s; }
+  .cb-delay-2 { animation-delay: 0.6s; }
+  .cb-delay-3 { animation-delay: 0.75s; }
+}
 
 [x-cloak] {
   display: none !important;
+}
+
+/* Browsers don't give <button> a pointer cursor by default — restore it
+   site-wide instead of adding cursor-pointer to every button. */
+button:not(:disabled),
+[type="button"]:not(:disabled),
+[type="submit"]:not(:disabled),
+[role="button"]:not(:disabled) {
+  cursor: pointer;
 }

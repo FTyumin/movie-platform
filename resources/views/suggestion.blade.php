@@ -2,61 +2,52 @@
 
 @section('title', 'Suggestion')
 
+@section('main-class', '')
+
 @section('content')
-<div class="min-h-screen bg-gradient-to-b from-black via-neutral-900 to-black flex items-center justify-center px-4">
 
-    <div class="w-full max-w-3xl bg-neutral-900/80 border border-white/5 rounded-2xl p-8 grid md:grid-cols-2 gap-8">
+<div class="cb-grain relative isolate flex min-h-[calc(100vh-4rem)] w-full items-center justify-center px-6 py-16 sm:px-8">
 
-        {{-- Poster placeholder --}}
-        <div class="flex items-center justify-center">
-            <div class="w-48 aspect-[2/3] rounded-xl bg-gradient-to-br from-neutral-800 to-neutral-700 
-                        flex items-center justify-center text-gray-400 text-sm border border-white/10">
-                Movie Poster
+    <div class="w-full max-w-md shrink-0 overflow-hidden rounded-box border border-white/9 bg-base-200 p-6 sm:p-8">
+
+        <div class="flex items-center gap-3">
+            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-selector bg-primary/15 text-primary">
+                @svg('heroicon-o-light-bulb', 'h-6 w-6')
+            </span>
+            <div>
+                <h1 class="font-display text-2xl font-semibold uppercase tracking-[0.02em] text-base-content">
+                    Suggest a movie
+                </h1>
+                <p class="text-sm text-base-content/55">Tell us what's missing from FilmStack.</p>
             </div>
         </div>
 
-        {{-- Form --}}
-        <div>
-            <h1 class="text-2xl font-bold text-white mb-2">
-                Send Movie Suggestion
-            </h1>
-            <p class="text-gray-400 mb-6">
-                Suggest a movie you'd like to see added to the platform.
-            </p>
+        <form method="POST" action="{{ route('suggestions.store') }}" class="mt-6 space-y-5">
+            @csrf
 
-            <form method="POST" action="{{ route('suggestions.store') }}" class="space-y-5">
-                @csrf
-
-                <div>
-                    <label for="title" class="block text-sm text-gray-300 mb-1">
-                        Movie title
-                    </label>
-                    <input
-                        type="text"
-                        name="title"
-                        id="title"
-                        placeholder="e.g. The Departed"
+            <div>
+                <label for="title" class="mb-2 block font-display text-[0.72rem] uppercase tracking-[0.16em] text-base-content/55">
+                    Movie title
+                </label>
+                <div class="flex items-center gap-2.5 rounded-selector border border-white/9 bg-base-100 px-4 py-3 transition focus-within:border-primary/50">
+                    @svg('heroicon-o-film', 'h-4 w-4 shrink-0 text-base-content/40')
+                    <input type="text" id="title" name="title" minlength="3" maxlength="30"
+                        value="{{ old('title') }}"
                         required
-                        class="w-full rounded-lg bg-neutral-800 border border-white/10 
-                               px-4 py-2 text-white placeholder-gray-500
-                               focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
+                        placeholder="e.g. The Departed"
+                        class="w-full bg-transparent text-sm text-base-content placeholder:text-base-content/40 focus:outline-none">
                 </div>
+                @error('title')
+                    <p class="mt-2 text-sm text-error">{{ $message }}</p>
+                @enderror
+            </div>
 
-                <button
-                    type="submit"
-                    class="w-full rounded-lg bg-blue-600 hover:bg-blue-500 
-                           text-white font-medium py-2 transition"
-                >
-                    Submit suggestion
-                </button>
-            </form>
-        </div>
-
+            <button type="submit"
+                class="w-full rounded-selector bg-primary px-6 py-3.5 font-display text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-primary-content transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
+                Submit suggestion
+            </button>
+        </form>
     </div>
-
 </div>
-
-
 
 @endsection

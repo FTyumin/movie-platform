@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('person_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            // $table->enum('type', ['actor', 'director']);
             $table->timestamps();
         });
     }
@@ -26,5 +25,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('user_favorite_people');
-    }
+    } 
 };

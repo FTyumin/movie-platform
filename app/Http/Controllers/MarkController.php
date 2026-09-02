@@ -81,7 +81,7 @@ class MarkController extends Controller
         $type = 'favorites';
         $userName = $user->name;
 
-        return view('movies.list', compact('movies', 'type', 'userName'));
+        return view('movies.list', compact('movies', 'type', 'userName', 'user'));
     }
 
     public function listSeen(User $user) {
@@ -89,7 +89,7 @@ class MarkController extends Controller
         $type = 'seen movies';
         $userName = $user->name;
 
-        return view('movies.list', compact('movies', 'type', 'userName'));
+        return view('movies.list', compact('movies', 'type', 'userName', 'user'));
     }
 
     public function listWatchlist(User $user) {
@@ -97,6 +97,6 @@ class MarkController extends Controller
         $type = 'watchlist';
         $userName = $user->name;
 
-        return view('movies.list', compact('movies', 'type', 'userName'));
+        return view('movies.list', compact('movies', 'type', 'userName', 'user'));
     }
 }

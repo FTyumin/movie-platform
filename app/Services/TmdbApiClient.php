@@ -7,7 +7,7 @@ use App\Models\Genre;
 use App\Models\Person;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 
 class TmdbApiClient {
     protected Client $http;
@@ -16,9 +16,9 @@ class TmdbApiClient {
     protected ?string $apiKey;
 
     public function __construct() {
-        $this->base   = rtrim(config('services.tmdb.base', env('TMDB_BASE', 'https://api.themoviedb.org/3')), '/');
-        $this->bearer = env('TMDB_BEARER_TOKEN');
-        $this->apiKey = env('TMDB_API_KEY');
+        $this->base   = rtrim('https://api.themoviedb.org/3', '/');
+        $this->bearer = config('services.tmdb.bearer');
+        $this->apiKey = config('services.tmdb.api_key');
 
         $this->http = new Client([
             'base_uri' => $this->base . '/',
@@ -39,7 +39,7 @@ class TmdbApiClient {
             $data = json_decode((string) $res->getBody(), true);
             return $data;
         } catch (GuzzleException $e) {
-            \Log::warning('Api request failed');
+            Log::warning('Api request failed');
             return null;
         }
     }
@@ -58,7 +58,7 @@ class TmdbApiClient {
             $trailer_key = $trailer['key'] ?? null;
             return $trailer_key;
         } catch (GuzzleException $e) {
-            \Log::warning('Api request failed');
+            Log::warning('Api request failed');
             return null;
         }
     }
@@ -67,6 +67,31 @@ class TmdbApiClient {
         if (empty($path)) return null;
 
         return "https://image.tmdb.org/t/p/{$size}{$path}";
+    }
+
+    public function loadAdditionalActors(int $movieId) {
+
+        $movieInfo = $this->getMovieWithExtras($movieId);
+
+        if(empty($movieInfo)) {
+            return [];
+        }
+
+        $actorIdsWithRole = [];
+        // selecting 15 actors
+        $actorInfo = array_slice($movieInfo['credits']['cast'], 5, 10);
+
+        $actorNames = [];
+
+        foreach ($actorInfo as $actor) {
+            $nameParts = explode(' ', $actor['name']);
+            $actorNames[] = [
+                'first_name' => array_shift($nameParts),
+                'last_name' => implode(' ', $nameParts),
+            ];
+
+        }
+        return $actorNames;
     }
 
     public function personData(int $id) {
@@ -117,7 +142,7 @@ class TmdbApiClient {
                 $res = $this->http->get($endpoint, $options);
                 $data = json_decode((string) $res->getBody(), true);
             } catch (\GuzzleHttp\Exception\GuzzleException $e) {
-                \Log::error("TMDb getTopMovies failed on page {$page}: " . $e->getMessage());
+                Log::error("TMDb getTopMovies failed on page {$page}: " . $e->getMessage());
                 break;
             }
 
@@ -159,6 +184,9 @@ class TmdbApiClient {
         if (!$movie_info) {
             return null;
         }
+
+        $directorIdsWithRole = [];
+        $actorIdsWithRole = [];
 
         $movie = Movie::updateOrCreate(
             ['tmdb_id' => $movie_info['id']],
@@ -222,9 +250,6 @@ class TmdbApiClient {
             $actorIdsWithRole[$person->id] = ['role' => 'actor'];
         }
 
-        foreach ($actorIdsWithRole as $personId => $pivot) {
-                $movie->people()->attach($personId, $pivot);
-        }
         $genreIds = collect($movieGenres)->map(function ($genreData) use (&$genres) {
             $genre = $genres->firstWhere('name', $genreData['name']);
 

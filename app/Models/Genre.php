@@ -2,16 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Genre extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'name'
     ];
 
-    // Relationship with Movies (Many-to-Many)
     public function movies()
     {
         return $this->belongsToMany(Movie::class)->withTimestamps();
