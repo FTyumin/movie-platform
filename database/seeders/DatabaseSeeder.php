@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 use Illuminate\Database\Seeder;
-use App\Models\Review;
 
 class DatabaseSeeder extends Seeder
 {
@@ -22,10 +21,7 @@ class DatabaseSeeder extends Seeder
         //     'password' => Hash::make('password'),
         // ]);
 
-        Review::factory()
-            ->count(5)
-            ->create();
-
-        $this->call(MovieListSeeder::class);
+        // $this->call(MovieListSeeder::class);
+        $this->call(FeedSeeder::class);
     }
 }

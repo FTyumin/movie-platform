@@ -4,19 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use App\Models\Movie;
-use App\Models\Genre;
-use App\Models\MovieList;
-use App\Models\Person;
-use App\Models\Review;
-use App\Models\Suggestion;
+use App\Models\{Movie, Genre, MovieList, Person, Review, Suggestion};
 use App\Services\ContentBasedRecommender;
 use App\Services\TmdbApiClient;
 
 class MovieController extends Controller
 {
-    protected $contentRecommender;
-    protected $apiClient;
+    protected ContentBasedRecommender $contentRecommender;
+    protected TmdbApiClient $apiClient;
     public function __construct(ContentBasedRecommender $contentRecommender,
      TmdbApiClient $apiClient) {
         $this->contentRecommender = $contentRecommender;
@@ -24,17 +19,22 @@ class MovieController extends Controller
     }
 
     public function home() {
-        $movies = Movie::orderByDesc('tmdb_rating')->take(5)->get();
-        // the homepage genre rail is a filter shortcut, so lead with the
-        // genres that actually have something behind them
+        // first 3 headline the hero poster stack, the rest fill "Trending now"
+        $movies = Movie::orderByDesc('tmdb_rating')->take(9)->get();
         $genres = Genre::withCount('movies')->orderByDesc('movies_count')->take(10)->get();
 
-        // selecting public lists
-        $lists = MovieList::visibleTo(auth()->user())->with('user')->get();
+        // selecting public lists — only ones with films to show as thumbnails
+        $lists = MovieList::visibleTo(auth()->user())
+            ->has('movies')
+            ->withCount('movies')
+            ->with(['user', 'movies' => fn ($q) => $q->take(4)])
+            ->orderByDesc('movies_count')
+            ->take(3)
+            ->get();
 
-        // strongest spoiler-free reviews — first one headlines the hero,
-        // the rest fill the "Top reviews" rail
-        $topReviews = \App\Models\Review::with(['user', 'movie'])
+        // strongest spoiler-free reviews — the rest fill the "Fresh reviews" rail
+        $topReviews = Review::with(['user', 'movie'])
+            ->withCount(['likedBy', 'comments'])
             ->where('spoilers', false)
             ->whereNotNull('description')
             ->orderByDesc('rating')
