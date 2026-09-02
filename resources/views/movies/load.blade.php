@@ -25,15 +25,16 @@
         <form method="POST" action="{{ route('movies.load.store') }}" class="mt-6 space-y-5">
             @csrf
 
-            {{-- Movie count --}}
-            <div>
-                <label for="count" class="mb-2 block font-display text-[0.72rem] uppercase tracking-[0.16em] text-base-content/55">
-                    Number of movies
-                </label>
-                <div class="flex items-center gap-2.5 rounded-selector border border-white/9 bg-base-100 px-4 py-3 transition focus-within:border-primary/50">
-                    @svg('heroicon-o-hashtag', 'h-4 w-4 shrink-0 text-base-content/40')
+                <!-- Movie count -->
+                <div>
+                    <label for="count" class="block text-sm font-medium text-gray-300 mb-2">
+                        Number of movies
+                    </label>
                     <input type="number" id="count" name="count" value="{{ old('count', 50) }}"
-                        min="1" max="1000" required
+                        min="1"
+                        max="1000"
+                        class="w-full px-4 py-3 rounded-lg bg-black  border border-gray-600
+                               focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                         placeholder="e.g. 100"
                         class="w-full bg-transparent text-sm text-base-content placeholder:text-base-content/40 focus:outline-none">
                 </div>
@@ -69,9 +70,10 @@
             </button>
         </form>
 
-        <p class="mt-8 text-center text-sm text-base-content/55">
-            <a href="{{ url()->previous() }}" class="font-medium text-primary transition-colors hover:brightness-110">
-                &larr; Back to admin
+        <!-- Back link -->
+        <div class="text-center mt-6">
+            <a href="/admin" class="text-gray-400 hover:text-white transition">
+                ← Back to admin
             </a>
         </p>
     </div>
